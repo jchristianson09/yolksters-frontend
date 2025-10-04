@@ -993,8 +993,7 @@
     </div>
     
     <script>
-        const API_URL = const API_URL = 'https://api.yolksters.com';
-        
+ const API_URL = 'https://api.yolksters.com';
         let currentRecipe = null;
         let savedRecipes = [];
         let shoppingList = [];
@@ -1052,19 +1051,35 @@
             document.getElementById('upgradeModal').classList.remove('visible');
         }
         
-        function selectPlan(plan) {
-            if (plan === 'free') {
-                alert('You are currently on the Free plan');
-            } else if (plan === 'pro-monthly') {
-                isPro = true;
-                updatePlanUI();
-                alert('🎉 Welcome to Yolksters Pro! You now have unlimited access to all features.');
-                switchTab('clean');
-                document.querySelectorAll('.tab')[0].click();
-            } else if (plan === 'extension') {
-                alert('Browser extension coming soon! This would open a payment page.');
+        async function selectPlan(plan) {
+    if (plan === 'free') {
+        alert('You are currently on the Free plan');
+    } else if (plan === 'pro-monthly') {
+        // Call backend to create Stripe checkout session
+        try {
+            const response = await fetch(`${API_URL}/api/create-checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            const data = await response.json();
+            
+            if (data.url) {
+                // Redirect to Stripe checkout
+                window.location.href = data.url;
+            } else {
+                alert('Failed to create checkout session. Please try again.');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to start checkout. Please try again.');
         }
+    } else if (plan === 'extension') {
+        alert('Browser extension coming soon! This would open a payment page.');
+    }
+}
         
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
