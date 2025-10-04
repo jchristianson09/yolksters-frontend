@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yolksters - Clean Recipe Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .egg-shell {
+            position: absolute;
+            width: 100px;
+            height: 120px;
+            left: 10px;
+            top: 0;
+        }
+        
+        .egg-shell-top {
+            width: 100px;
+            height: 60px;
+            background: white;
+            border-radius: 50% 50% 0 0;
+            position: absolute;
+            top: 0;
+            animation: crack 2s ease-in-out infinite;
+        }
+        
+        @keyframes crack {
+            0%, 90%, 100% { transform: rotate(0deg) translateY(0); }
+            95% { transform: rotate(-5deg) translateY(-3px); }
+        }
+        
+        .egg-shell-bottom {
+            width: 100px;
+            height: 60px;
+            background: white;
+            border-radius: 0 0 50% 50%;
+            position: absolute;
+            bottom: 0;
+        }
+        
+        .yolk {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ffd93d 0%, #ffb93d 100%);
+            border-radius: 50%;
+            top: 25px;
+            left: 25px;
+            box-shadow: 0 5px 20px rgba(255, 185, 61, 0.4);
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .yolk-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .eye {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            top: 25px;
+        }
+        
+        .eye-left {
+            left: 20px;
+        }
+        
+        .eye-right {
+            right: 20px;
+        }
+        
+        .smile {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            border: 3px solid #333;
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        .input-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="url"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        .result-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .result-section.visible {
+            display: block;
+        }
+        
+        .recipe-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .ingredients-list {
+            line-height: 1.8;
+            list-style: none;
+        }
+        
+        .ingredients-list li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .ingredients-list li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+        
+        .instructions-list {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+        
+        .instructions-list li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions-list li:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.1em;
+            margin-top: 15px;
+        }
+        
+        .print-btn {
+            background: #48bb78;
+            margin-top: 30px;
+        }
+        
+        .print-btn:hover {
+            background: #38a169;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="egg-shell">
+                    <div class="egg-shell-top"></div>
+                    <div class="egg-shell-bottom"></div>
+                </div>
+                <div class="yolk">
+                    <div class="yolk-face">
+                        <div class="eye eye-left"></div>
+                        <div class="eye eye-right"></div>
+                        <div class="smile"></div>
+                    </div>
+                </div>
+            </div>
+            <h1>Yolksters</h1>
+            <p>Crack open clean recipes • No ads, no stories, just cooking</p>
+            <div class="plan-badge">Free Plan</div>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <input type="url" id="recipeUrl" placeholder="Paste a recipe URL here..." />
+                <button onclick="cleanRecipe()">Clean Recipe</button>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0; color: #718096;">
+                <strong>OR</strong>
+            </div>
+            
+            <div style="text-align: center;">
+                <button onclick="loadDemoRecipe()" style="background: #48bb78;">Try Demo Recipe</button>
+            </div>
+            
+            <div id="loading" class="loading" style="display: none;">Fetching recipe...</div>
+            <div id="error" class="error" style="display: none;"></div>
+        </div>
+        
+        <div id="result" class="result-section">
+            <h2 id="recipeTitle" class="recipe-title"></h2>
+            
+            <div id="ingredientsSection">
+                <h3 class="section-title">Ingredients</h3>
+                <ul id="ingredients" class="ingredients-list"></ul>
+            </div>
+            
+            <div id="instructionsSection">
+                <h3 class="section-title">Instructions</h3>
+                <ol id="instructions" class="instructions-list"></ol>
+            </div>
+            
+            <button class="print-btn" onclick="window.print()">Print Recipe</button>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000';
+        
+        function loadDemoRecipe() {
+            const demoRecipe = {
+                name: "Grandma's Secret Chocolate Chip Cookies",
+                ingredients: [
+                    "2 1/4 cups all-purpose flour",
+                    "1 teaspoon baking soda",
+                    "1 teaspoon salt",
+                    "1 cup (2 sticks) butter, softened",
+                    "3/4 cup granulated sugar",
+                    "3/4 cup packed brown sugar",
+                    "2 large eggs",
+                    "2 teaspoons vanilla extract",
+                    "2 cups chocolate chips"
+                ],
+                instructions: [
+                    "Preheat your oven to 375°F (190°C).",
+                    "In a small bowl, combine flour, baking soda, and salt. Set aside.",
+                    "In a large bowl, beat the softened butter, granulated sugar, and brown sugar until creamy.",
+                    "Add eggs and vanilla extract to the butter mixture and beat well.",
+                    "Gradually blend in the flour mixture until just combined.",
+                    "Stir in the chocolate chips by hand.",
+                    "Drop rounded tablespoons of dough onto ungreased cookie sheets, spacing them about 2 inches apart.",
+                    "Bake for 9 to 11 minutes or until golden brown.",
+                    "Cool on baking sheets for 2 minutes, then remove to wire racks to cool completely."
+                ]
+            };
+            
+            displayRecipe(demoRecipe);
+            document.getElementById('result').classList.add('visible');
+        }
+        
+        async function cleanRecipe() {
+            const urlInput = document.getElementById('recipeUrl');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a recipe URL');
+                return;
+            }
+            
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('result').classList.remove('visible');
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/recipe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to fetch recipe');
+                }
+                
+                displayRecipe(data.recipe);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'Failed to fetch recipe. Make sure your backend is running!');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function displayRecipe(recipe) {
+            document.getElementById('recipeTitle').textContent = recipe.name || 'Recipe';
+            
+            const ingredientsList = document.getElementById('ingredients');
+            ingredientsList.innerHTML = '';
+            recipe.ingredients.forEach(ingredient => {
+                const li = document.createElement('li');
+                li.textContent = ingredient;
+                ingredientsList.appendChild(li);
+            });
+            
+            const instructionsList = document.getElementById('instructions');
+            instructionsList.innerHTML = '';
+            recipe.instructions.forEach(instruction => {
+                const li = document.createElement('li');
+                li.textContent = instruction;
+                instructionsList.appendChild(li);
+            });
+            
+            document.getElementById('result').classList.add('visible');
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        document.getElementById('recipeUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                cleanRecipe();
+            }
+        });
+    </script>
+</body>
+</html>
