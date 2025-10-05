@@ -1,1479 +1,340 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yolksters - Clean Recipe Viewer</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-        
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            position: relative;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .egg-shell {
-            position: absolute;
-            width: 100px;
-            height: 120px;
-            left: 10px;
-            top: 0;
-        }
-        
-        .egg-shell-top {
-            width: 100px;
-            height: 60px;
-            background: white;
-            border-radius: 50% 50% 0 0;
-            position: absolute;
-            top: 0;
-            animation: crack 2s ease-in-out infinite;
-        }
-        
-        @keyframes crack {
-            0%, 90%, 100% { transform: rotate(0deg) translateY(0); }
-            95% { transform: rotate(-5deg) translateY(-3px); }
-        }
-        
-        .egg-shell-bottom {
-            width: 100px;
-            height: 60px;
-            background: white;
-            border-radius: 0 0 50% 50%;
-            position: absolute;
-            bottom: 0;
-        }
-        
-        .yolk {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #ffd93d 0%, #ffb93d 100%);
-            border-radius: 50%;
-            top: 25px;
-            left: 25px;
-            box-shadow: 0 5px 20px rgba(255, 185, 61, 0.4);
-            animation: bounce 2s ease-in-out infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .yolk-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .eye {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #333;
-            border-radius: 50%;
-            top: 25px;
-        }
-        
-        .eye-left {
-            left: 20px;
-        }
-        
-        .eye-right {
-            right: 20px;
-        }
-        
-        .smile {
-            position: absolute;
-            width: 30px;
-            height: 15px;
-            border: 3px solid #333;
-            border-top: none;
-            border-radius: 0 0 30px 30px;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-        
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-        
-        .plan-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-        
-        .plan-badge.pro {
-            background: gold;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .tab {
-            flex: 1;
-            min-width: 120px;
-            padding: 15px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .tab:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .tab.active {
-            background: white;
-            color: #667eea;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .input-section {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-        }
-        
-        .usage-banner {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .usage-banner.limit-reached {
-            background: #fee2e2;
-            border-left-color: #ef4444;
-        }
-        
-        .upgrade-btn-small {
-            padding: 8px 16px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .upgrade-btn-small:hover {
-            background: #5568d3;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        input[type="url"] {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="url"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        button {
-            padding: 15px 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: #5568d3;
-        }
-        
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .result-section {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: none;
-        }
-        
-        .result-section.visible {
-            display: block;
-        }
-        
-        .recipe-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #667eea;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .recipe-title-section {
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        .recipe-title {
-            font-size: 2em;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .category-select {
-            padding: 8px 12px;
-            border: 2px solid #667eea;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #667eea;
-            background: white;
-            cursor: pointer;
-        }
-        
-        .recipe-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .save-btn {
-            background: #48bb78;
-            padding: 10px 20px;
-            font-size: 14px;
-        }
-        
-        .save-btn:hover {
-            background: #38a169;
-        }
-        
-        .save-btn.saved {
-            background: #e53e3e;
-        }
-        
-        .scaling-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f7fafc;
-            border-radius: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .scaling-controls label {
-            font-weight: 600;
-            color: #667eea;
-        }
-        
-        .scale-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        
-        .scale-btn.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .section-title {
-            font-size: 1.5em;
-            color: #667eea;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        
-        .ingredients-list, .instructions-list {
-            line-height: 1.8;
-        }
-        
-        .ingredients-list li {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .ingredients-list li:hover {
-            background: #f7fafc;
-        }
-        
-        .ingredients-list li.checked {
-            text-decoration: line-through;
-            opacity: 0.5;
-        }
-        
-        .checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #667eea;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .checkbox.checked {
-            background: #667eea;
-        }
-        
-        .checkbox.checked:after {
-            content: "✓";
-            color: white;
-            font-size: 14px;
-        }
-        
-        .instructions-list {
-            counter-reset: step-counter;
-            list-style: none;
-        }
-        
-        .instructions-list li {
-            counter-increment: step-counter;
-            position: relative;
-            padding-left: 40px;
-            margin-bottom: 15px;
-        }
-        
-        .instructions-list li:before {
-            content: counter(step-counter);
-            position: absolute;
-            left: 0;
-            background: #667eea;
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-        
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-        
-        .loading {
-            text-align: center;
-            color: #667eea;
-            font-size: 1.1em;
-            margin-top: 15px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .print-btn {
-            background: #4299e1;
-        }
-        
-        .print-btn:hover {
-            background: #3182ce;
-        }
-        
-        .shopping-btn {
-            background: #ed8936;
-        }
-        
-        .shopping-btn:hover {
-            background: #dd6b20;
-        }
-        
-        .saved-recipes {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .category-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .category-filter {
-            padding: 8px 16px;
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        .category-filter:hover {
-            border-color: #667eea;
-        }
-        
-        .category-filter.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .saved-recipe-card {
-            padding: 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .saved-recipe-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
-        }
-        
-        .saved-recipe-info {
-            flex: 1;
-        }
-        
-        .saved-recipe-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .saved-recipe-category {
-            display: inline-block;
-            padding: 4px 10px;
-            background: #e6f3ff;
-            color: #667eea;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .delete-btn {
-            background: #e53e3e;
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-        
-        .delete-btn:hover {
-            background: #c53030;
-        }
-        
-        .empty-state {
-            text-align: center;
-            color: #718096;
-            padding: 60px 20px;
-        }
-        
-        .empty-state h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-        
-        .shopping-list {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .shopping-list h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-        
-        .clear-list-btn {
-            background: #e53e3e;
-            margin-top: 20px;
-        }
-        
-        .pricing-section {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .pricing-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .pricing-header h2 {
-            font-size: 2.5em;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .pricing-header p {
-            font-size: 1.2em;
-            color: #718096;
-        }
-        
-        .pricing-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .pricing-card {
-            border: 3px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 30px;
-            transition: all 0.3s;
-        }
-        
-        .pricing-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
-        }
-        
-        .pricing-card.featured {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #f7fafc 0%, #e6f3ff 100%);
-            position: relative;
-        }
-        
-        .pricing-card.featured:before {
-            content: "MOST POPULAR";
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #667eea;
-            color: white;
-            padding: 6px 20px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        
-        .plan-name {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .plan-price {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-        
-        .plan-price span {
-            font-size: 0.4em;
-            color: #718096;
-            font-weight: 400;
-        }
-        
-        .plan-features {
-            list-style: none;
-            margin: 25px 0;
-        }
-        
-        .plan-features li {
-            padding: 10px 0;
-            display: flex;
-            align-items: start;
-            gap: 10px;
-            font-size: 0.95em;
-        }
-        
-        .plan-features li:before {
-            content: "✓";
-            color: #48bb78;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        
-        .plan-features li.unavailable {
-            opacity: 0.4;
-        }
-        
-        .plan-features li.unavailable:before {
-            content: "✗";
-            color: #cbd5e0;
-        }
-        
-        .select-plan-btn {
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .select-plan-btn.primary {
-            background: #667eea;
-            color: white;
-        }
-        
-        .select-plan-btn.primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-        }
-        
-        .select-plan-btn.secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        
-        .select-plan-btn.secondary:hover {
-            background: #f7fafc;
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        
-        .modal-overlay.visible {
-            display: flex;
-        }
-        
-        .modal {
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .modal h3 {
-            font-size: 2em;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .modal p {
-            font-size: 1.1em;
-            color: #718096;
-            margin-bottom: 30px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-        
-        .close-modal-btn {
-            background: #cbd5e0;
-            color: #333;
-        }
-        
-        .close-modal-btn:hover {
-            background: #a0aec0;
-        }
-        
-        @media print {
-            body {
-                background: white;
-            }
-            .header, .tabs, .input-section, .action-buttons, .scaling-controls, .save-btn {
-                display: none;
-            }
-            .result-section {
-                box-shadow: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <div class="egg-shell">
-                    <div class="egg-shell-top"></div>
-                    <div class="egg-shell-bottom"></div>
-                </div>
-                <div class="yolk">
-                    <div class="yolk-face">
-                        <div class="eye eye-left"></div>
-                        <div class="eye eye-right"></div>
-                        <div class="smile"></div>
-                    </div>
-                </div>
-            </div>
-            <h1>Yolksters</h1>
-            <p>Crack open clean recipes • No ads, no stories, just cooking</p>
-            <div class="plan-badge" id="planBadge">Free Plan</div>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('clean')">Clean Recipe</button>
-            <button class="tab" onclick="switchTab('saved')">Saved (<span id="savedCount">0</span>)</button>
-            <button class="tab" onclick="switchTab('shopping')">Shopping (<span id="shoppingCount">0</span>)</button>
-            <button class="tab" onclick="switchTab('pricing')">Upgrade 🚀</button>
-        </div>
-        
-        <div id="cleanTab" class="tab-content active">
-            <div class="input-section">
-                <div id="usageBanner" class="usage-banner">
-                    <div>
-                        <strong>Free Plan:</strong> <span id="usageText">3 recipes this month (0/3 used)</span>
-                    </div>
-                    <button class="upgrade-btn-small" onclick="switchTab('pricing'); document.querySelectorAll('.tab')[3].click();">Upgrade</button>
-                </div>
-                
-                <div class="input-group">
-                    <input type="url" id="recipeUrl" placeholder="Paste recipe URL here..." />
-                    <button onclick="cleanRecipe()">Clean Recipe</button>
-                </div>
-                
-                <div style="text-align: center; margin: 20px 0; color: #718096;">
-                    <strong>OR</strong>
-                </div>
-                
-                <div style="text-align: center;">
-                    <button onclick="loadDemoRecipe()" style="background: #48bb78;">Try Demo Recipe</button>
-                </div>
-                
-                <div id="loading" class="loading" style="display: none;">Fetching recipe...</div>
-                <div id="error" class="error" style="display: none;"></div>
-            </div>
-            
-            <div id="result" class="result-section">
-                <div class="recipe-header">
-                    <div class="recipe-title-section">
-                        <h2 id="recipeTitle" class="recipe-title"></h2>
-                        <select id="categorySelect" class="category-select">
-                            <option value="">Select Category</option>
-                            <option value="Breakfast">🍳 Breakfast</option>
-                            <option value="Lunch">🥗 Lunch</option>
-                            <option value="Dinner">🍝 Dinner</option>
-                            <option value="Dessert">🍰 Dessert</option>
-                            <option value="Snacks">🍿 Snacks</option>
-                            <option value="Drinks">🥤 Drinks</option>
-                            <option value="Baking">🥖 Baking</option>
-                            <option value="Vegetarian">🥕 Vegetarian</option>
-                            <option value="Quick Meals">⚡ Quick Meals</option>
-                        </select>
-                    </div>
-                    <div class="recipe-actions">
-                        <button id="saveBtn" class="save-btn" onclick="toggleSaveRecipe()">Save Recipe</button>
-                    </div>
-                </div>
-                
-                <div class="scaling-controls">
-                    <label>Servings:</label>
-                    <button class="scale-btn" onclick="scaleRecipe(0.5)">½x</button>
-                    <button class="scale-btn active" onclick="scaleRecipe(1)">1x</button>
-                    <button class="scale-btn" onclick="scaleRecipe(2)">2x</button>
-                    <button class="scale-btn" onclick="scaleRecipe(3)">3x</button>
-                </div>
-                
-                <div id="ingredientsSection">
-                    <h3 class="section-title">Ingredients (click to check off)</h3>
-                    <ul id="ingredients" class="ingredients-list"></ul>
-                </div>
-                
-                <div id="instructionsSection">
-                    <h3 class="section-title">Instructions</h3>
-                    <ol id="instructions" class="instructions-list"></ol>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="print-btn" onclick="window.print()">Print Recipe</button>
-                    <button class="shopping-btn" onclick="addToShoppingList()">Add to Shopping List</button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="savedTab" class="tab-content">
-            <div class="saved-recipes">
-                <h2 style="color: #667eea; margin-bottom: 20px;">Your Saved Recipes</h2>
-                
-                <div class="category-filters">
-                    <button class="category-filter active" onclick="filterByCategory('all')">All</button>
-                    <button class="category-filter" onclick="filterByCategory('Breakfast')">🍳 Breakfast</button>
-                    <button class="category-filter" onclick="filterByCategory('Lunch')">🥗 Lunch</button>
-                    <button class="category-filter" onclick="filterByCategory('Dinner')">🍝 Dinner</button>
-                    <button class="category-filter" onclick="filterByCategory('Dessert')">🍰 Dessert</button>
-                    <button class="category-filter" onclick="filterByCategory('Snacks')">🍿 Snacks</button>
-                </div>
-                
-                <div id="savedRecipesList"></div>
-            </div>
-        </div>
-        
-        <div id="shoppingTab" class="tab-content">
-            <div class="shopping-list">
-                <h2>Shopping List</h2>
-                <ul id="shoppingListItems" class="ingredients-list"></ul>
-                <button class="clear-list-btn" onclick="clearShoppingList()">Clear List</button>
-            </div>
-        </div>
-        
-        <div id="pricingTab" class="tab-content">
-            <div class="pricing-section">
-                <div class="pricing-header">
-                    <h2>Choose Your Plan</h2>
-                    <p>Unlimited clean recipes, no more life stories</p>
-                </div>
-                
-                <div class="pricing-cards">
-                    <div class="pricing-card">
-                        <div class="plan-name">Free</div>
-                        <div class="plan-price">$0<span>/forever</span></div>
-                        <ul class="plan-features">
-                            <li>3 recipes per month</li>
-                            <li class="unavailable">Unlimited recipes</li>
-                            <li class="unavailable">Save favorites</li>
-                            <li class="unavailable">Shopping lists</li>
-                            <li class="unavailable">Recipe scaling</li>
-                            <li class="unavailable">Category organization</li>
-                        </ul>
-                        <button class="select-plan-btn secondary" onclick="selectPlan('free')">Current Plan</button>
-                    </div>
-                    
-                    <div class="pricing-card featured">
-                        <div class="plan-name">Yolksters Pro</div>
-                        <div class="plan-price">$4.99<span>/month</span></div>
-                        <ul class="plan-features">
-                            <li>Unlimited recipes</li>
-                            <li>Save unlimited favorites</li>
-                            <li>Shopping list generator</li>
-                            <li>Recipe scaling (½x to 3x)</li>
-                            <li>Category organization</li>
-                            <li>Priority support</li>
-                        </ul>
-                        <button class="select-plan-btn primary" onclick="selectPlan('pro-monthly')">Upgrade Now</button>
-                    </div>
-                    
-                    <div class="pricing-card">
-                        <div class="plan-name">Browser Extension</div>
-                        <div class="plan-price">$9.99<span>/one-time</span></div>
-                        <ul class="plan-features">
-                            <li>One-click cleaning</li>
-                            <li>Works on any recipe site</li>
-                            <li>Instant clean view</li>
-                            <li>Offline access</li>
-                            <li>All Pro features included</li>
-                            <li>Lifetime updates</li>
-                        </ul>
-                        <button class="select-plan-btn primary" onclick="selectPlan('extension')">Buy Extension</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="upgradeModal" class="modal-overlay">
-        <div class="modal">
-            <h3>🔒 Upgrade to Pro</h3>
-            <p id="modalMessage">This feature requires a Pro subscription</p>
-            <div class="modal-buttons">
-                <button class="close-modal-btn" onclick="closeModal()">Maybe Later</button>
-                <button class="select-plan-btn primary" onclick="closeModal(); switchTab('pricing'); document.querySelectorAll('.tab')[3].click();">View Plans</button>
-            </div>
-        </div>
-    </div>
-    
-    <script>
- const API_URL = 'https://api.yolksters.com';
-        let currentRecipe = null;
-        let savedRecipes = [];
-        let shoppingList = [];
-        let currentScale = 1;
-        let isPro = false;
-        let recipesCleanedThisMonth = 0;
-        let currentCategoryFilter = 'all';
-        const FREE_RECIPE_LIMIT = 3;
-        
-        function updatePlanUI() {
-            const badge = document.getElementById('planBadge');
-            const usageBanner = document.getElementById('usageBanner');
-            
-            if (isPro) {
-                badge.textContent = '⭐ Pro Plan';
-                badge.classList.add('pro');
-                usageBanner.style.display = 'none';
-            } else {
-                badge.textContent = 'Free Plan';
-                badge.classList.remove('pro');
-                updateUsageBanner();
-            }
-        }
-        
-        function updateUsageBanner() {
-            const usageText = document.getElementById('usageText');
-            const usageBanner = document.getElementById('usageBanner');
-            const remaining = FREE_RECIPE_LIMIT - recipesCleanedThisMonth;
-            
-            if (remaining <= 0) {
-                usageBanner.classList.add('limit-reached');
-                usageText.innerHTML = `<strong>Limit reached!</strong> You've used all 3 free recipes this month.`;
-            } else {
-                usageBanner.classList.remove('limit-reached');
-                usageText.textContent = `${remaining} recipes remaining this month (${recipesCleanedThisMonth}/${FREE_RECIPE_LIMIT} used)`;
-            }
-        }
-        
-        function showUpgradeModal(feature) {
-            const modal = document.getElementById('upgradeModal');
-            const message = document.getElementById('modalMessage');
-            
-            const messages = {
-                'save': 'Saving recipes requires Yolksters Pro. Upgrade to save unlimited recipes!',
-                'shopping': 'Shopping lists require Yolksters Pro. Upgrade to organize your groceries!',
-                'scaling': 'Recipe scaling requires Yolksters Pro. Upgrade to adjust serving sizes!',
-                'limit': `You've reached your free limit of ${FREE_RECIPE_LIMIT} recipes this month. Upgrade to Yolksters Pro for unlimited recipes!`
-            };
-            
-            message.textContent = messages[feature] || 'This feature requires a Pro subscription';
-            modal.classList.add('visible');
-        }
-        
-        function closeModal() {
-            document.getElementById('upgradeModal').classList.remove('visible');
-        }
-        
-        async function selectPlan(plan) {
-    if (plan === 'free') {
-        alert('You are currently on the Free plan');
-    } else if (plan === 'pro-monthly') {
-        // Call backend to create Stripe checkout session
-        try {
-            const response = await fetch(`${API_URL}/api/create-checkout`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            
-            const data = await response.json();
-            
-            if (data.url) {
-                // Redirect to Stripe checkout
-                window.location.href = data.url;
-            } else {
-                alert('Failed to create checkout session. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to start checkout. Please try again.');
-        }
-    } else if (plan === 'extension') {
-        alert('Browser extension coming soon! This would open a payment page.');
+const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { createClient } = require('@supabase/supabase-js');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Initialize Supabase
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
+app.use(cors());
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Yolksters API - Crack open clean recipes!',
+    endpoints: {
+      '/api/recipe': 'POST - Fetch and parse a recipe URL',
+      '/api/create-checkout': 'POST - Create Stripe checkout session',
+      '/api/webhook': 'POST - Stripe webhook handler',
+      '/api/user-status': 'GET - Get user subscription status'
     }
-}
-        
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(tab + 'Tab').classList.add('active');
-            
-            if (tab === 'saved') {
-                displaySavedRecipes();
-            } else if (tab === 'shopping') {
-                displayShoppingList();
-            }
-        }
-        
-        function loadDemoRecipe() {
-            const demoRecipe = {
-                name: "Grandma's Secret Chocolate Chip Cookies",
-                url: "demo",
-                category: "Dessert",
-                ingredients: [
-                    "2 1/4 cups all-purpose flour",
-                    "1 teaspoon baking soda",
-                    "1 teaspoon salt",
-                    "1 cup (2 sticks) butter, softened",
-                    "3/4 cup granulated sugar",
-                    "3/4 cup packed brown sugar",
-                    "2 large eggs",
-                    "2 teaspoons vanilla extract",
-                    "2 cups chocolate chips"
-                ],
-                instructions: [
-                    "Preheat your oven to 375°F (190°C).",
-                    "In a small bowl, combine flour, baking soda, and salt. Set aside.",
-                    "In a large bowl, beat the softened butter, granulated sugar, and brown sugar until creamy.",
-                    "Add eggs and vanilla extract to the butter mixture and beat well.",
-                    "Gradually blend in the flour mixture until just combined.",
-                    "Stir in the chocolate chips by hand.",
-                    "Drop rounded tablespoons of dough onto ungreased cookie sheets, spacing them about 2 inches apart.",
-                    "Bake for 9 to 11 minutes or until golden brown.",
-                    "Cool on baking sheets for 2 minutes, then remove to wire racks to cool completely."
-                ],
-                originalIngredients: [
-                    "2 1/4 cups all-purpose flour",
-                    "1 teaspoon baking soda",
-                    "1 teaspoon salt",
-                    "1 cup (2 sticks) butter, softened",
-                    "3/4 cup granulated sugar",
-                    "3/4 cup packed brown sugar",
-                    "2 large eggs",
-                    "2 teaspoons vanilla extract",
-                    "2 cups chocolate chips"
-                ]
-            };
-            
-            currentRecipe = demoRecipe;
-            currentScale = 1;
-            
-            if (!isPro) {
-                recipesCleanedThisMonth++;
-                updateUsageBanner();
-            }
-            
-            displayRecipe(demoRecipe);
-            updateSaveButton();
-            document.getElementById('result').classList.add('visible');
-        }
-        
-        async function cleanRecipe() {
-            if (!isPro && recipesCleanedThisMonth >= FREE_RECIPE_LIMIT) {
-                showUpgradeModal('limit');
-                return;
-            }
-            
-            const urlInput = document.getElementById('recipeUrl');
-            const url = urlInput.value.trim();
-            
-            if (!url) {
-                showError('Please enter a recipe URL');
-                return;
-            }
-            
-            document.getElementById('error').style.display = 'none';
-            document.getElementById('result').classList.remove('visible');
-            document.getElementById('loading').style.display = 'block';
-            
-            try {
-                const response = await fetch(`${API_URL}/api/recipe`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ url: url })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to fetch recipe');
-                }
-                
-                const recipe = data.recipe;
-                
-                currentRecipe = {
-                    name: recipe.name,
-                    ingredients: recipe.ingredients,
-                    instructions: recipe.instructions,
-                    originalIngredients: [...recipe.ingredients],
-                    url: url,
-                    category: ''
-                };
-                
-                currentScale = 1;
-                
-                if (!isPro) {
-                    recipesCleanedThisMonth++;
-                    updateUsageBanner();
-                }
-                
-                displayRecipe(currentRecipe);
-                updateSaveButton();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showError(error.message || 'Failed to fetch recipe. Please try again.');
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
-        
-        function scaleRecipe(scale) {
-            if (!isPro) {
-                showUpgradeModal('scaling');
-                return;
-            }
-            
-            currentScale = scale;
-            
-            document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const scaledIngredients = currentRecipe.originalIngredients.map(ingredient => {
-                return scaleIngredient(ingredient, scale);
-            });
-            
-            currentRecipe.ingredients = scaledIngredients;
-            displayIngredients(scaledIngredients);
-        }
-        
-        function scaleIngredient(ingredient, scale) {
-            if (scale === 1) return ingredient;
-            
-            return ingredient.replace(/(\d+\.?\d*|\d*\.?\d+)/g, (match) => {
-                const num = parseFloat(match);
-                const scaled = num * scale;
-                return scaled % 1 === 0 ? scaled.toString() : scaled.toFixed(2);
-            });
-        }
-        
-        function displayRecipe(recipe) {
-            document.getElementById('recipeTitle').textContent = recipe.name || 'Recipe';
-            document.getElementById('categorySelect').value = recipe.category || '';
-            displayIngredients(recipe.ingredients);
-            
-            const instructionsList = document.getElementById('instructions');
-            instructionsList.innerHTML = '';
-            recipe.instructions.forEach(instruction => {
-                const li = document.createElement('li');
-                li.textContent = instruction;
-                instructionsList.appendChild(li);
-            });
-            
-            document.getElementById('result').classList.add('visible');
-        }
-        
-        function displayIngredients(ingredients) {
-            const ingredientsList = document.getElementById('ingredients');
-            ingredientsList.innerHTML = '';
-            ingredients.forEach((ingredient, index) => {
-                const li = document.createElement('li');
-                li.onclick = () => toggleIngredientCheck(index);
-                
-                const checkbox = document.createElement('div');
-                checkbox.className = 'checkbox';
-                
-                const text = document.createElement('span');
-                text.textContent = ingredient;
-                
-                li.appendChild(checkbox);
-                li.appendChild(text);
-                ingredientsList.appendChild(li);
-            });
-        }
-        
-        function toggleIngredientCheck(index) {
-            const items = document.querySelectorAll('#ingredients li');
-            const item = items[index];
-            const checkbox = item.querySelector('.checkbox');
-            
-            item.classList.toggle('checked');
-            checkbox.classList.toggle('checked');
-        }
-        
-        function toggleSaveRecipe() {
-            if (!isPro) {
-                showUpgradeModal('save');
-                return;
-            }
-            
-            const category = document.getElementById('categorySelect').value;
-            currentRecipe.category = category;
-            
-            const index = savedRecipes.findIndex(r => r.name === currentRecipe.name);
-            
-            if (index >= 0) {
-                savedRecipes.splice(index, 1);
-            } else {
-                savedRecipes.push({...currentRecipe});
-            }
-            
-            updateSaveButton();
-            updateSavedCount();
-        }
-        
-        function updateSaveButton() {
-            const saveBtn = document.getElementById('saveBtn');
-            const isSaved = savedRecipes.some(r => r.name === currentRecipe.name);
-            
-            if (isSaved) {
-                saveBtn.textContent = 'Unsave Recipe';
-                saveBtn.classList.add('saved');
-            } else {
-                saveBtn.textContent = 'Save Recipe';
-                saveBtn.classList.remove('saved');
-            }
-        }
-        
-        function updateSavedCount() {
-            document.getElementById('savedCount').textContent = savedRecipes.length;
-        }
-        
-        function filterByCategory(category) {
-            currentCategoryFilter = category;
-            
-            document.querySelectorAll('.category-filter').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            displaySavedRecipes();
-        }
-        
-        function displaySavedRecipes() {
-            const list = document.getElementById('savedRecipesList');
-            
-            const filtered = currentCategoryFilter === 'all' 
-                ? savedRecipes 
-                : savedRecipes.filter(r => r.category === currentCategoryFilter);
-            
-            if (filtered.length === 0) {
-                const message = currentCategoryFilter === 'all' 
-                    ? 'No saved recipes yet. Clean a recipe and click "Save Recipe" to add it here.'
-                    : `No recipes in the ${currentCategoryFilter} category.`;
-                list.innerHTML = `<div class="empty-state"><h3>No recipes found</h3><p>${message}</p></div>`;
-                return;
-            }
-            
-            list.innerHTML = '';
-            filtered.forEach((recipe, index) => {
-                const actualIndex = savedRecipes.indexOf(recipe);
-                const card = document.createElement('div');
-                card.className = 'saved-recipe-card';
-                
-                const info = document.createElement('div');
-                info.className = 'saved-recipe-info';
-                info.onclick = () => loadSavedRecipe(actualIndex);
-                
-                const title = document.createElement('div');
-                title.className = 'saved-recipe-title';
-                title.textContent = recipe.name;
-                
-                info.appendChild(title);
-                
-                if (recipe.category) {
-                    const category = document.createElement('span');
-                    category.className = 'saved-recipe-category';
-                    category.textContent = recipe.category;
-                    info.appendChild(category);
-                }
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteSavedRecipe(actualIndex);
-                };
-                
-                card.appendChild(info);
-                card.appendChild(deleteBtn);
-                list.appendChild(card);
-            });
-        }
-        
-        function loadSavedRecipe(index) {
-            currentRecipe = savedRecipes[index];
-            currentScale = 1;
-            displayRecipe(currentRecipe);
-            updateSaveButton();
-            switchTab('clean');
-            document.querySelector('.tab').click();
-        }
-        
-        function deleteSavedRecipe(index) {
-            savedRecipes.splice(index, 1);
-            displaySavedRecipes();
-            updateSavedCount();
-        }
-        
-        function addToShoppingList() {
-            if (!isPro) {
-                showUpgradeModal('shopping');
-                return;
-            }
-            
-            if (!currentRecipe) return;
-            
-            currentRecipe.ingredients.forEach(ingredient => {
-                if (!shoppingList.includes(ingredient)) {
-                    shoppingList.push(ingredient);
-                }
-            });
-            
-            updateShoppingCount();
-            alert('Ingredients added to shopping list!');
-        }
-        
-        function displayShoppingList() {
-            const list = document.getElementById('shoppingListItems');
-            
-            if (shoppingList.length === 0) {
-                list.innerHTML = '<div class="empty-state"><h3>Shopping list is empty</h3><p>Add ingredients from a recipe to build your list</p></div>';
-                return;
-            }
-            
-            list.innerHTML = '';
-            shoppingList.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.onclick = () => toggleShoppingItem(index);
-                
-                const checkbox = document.createElement('div');
-                checkbox.className = 'checkbox';
-                
-                const text = document.createElement('span');
-                text.textContent = item;
-                
-                li.appendChild(checkbox);
-                li.appendChild(text);
-                list.appendChild(li);
-            });
-        }
-        
-        function toggleShoppingItem(index) {
-            const items = document.querySelectorAll('#shoppingListItems li');
-            const item = items[index];
-            const checkbox = item.querySelector('.checkbox');
-            
-            item.classList.toggle('checked');
-            checkbox.classList.toggle('checked');
-        }
-        
-        function clearShoppingList() {
-            if (confirm('Clear all items from shopping list?')) {
-                shoppingList = [];
-                displayShoppingList();
-                updateShoppingCount();
-            }
-        }
-        
-        function updateShoppingCount() {
-            document.getElementById('shoppingCount').textContent = shoppingList.length;
-        }
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-        
-        document.getElementById('recipeUrl').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                cleanRecipe();
-            }
+  });
+});
+
+// Recipe endpoint (unchanged)
+app.post('/api/recipe', async (req, res) => {
+  try {
+    const { url } = req.body;
+    
+    if (!url) {
+      return res.status(400).json({ 
+        error: 'URL is required',
+        message: 'Please provide a recipe URL in the request body'
+      });
+    }
+
+    try {
+      new URL(url);
+    } catch (e) {
+      return res.status(400).json({ 
+        error: 'Invalid URL',
+        message: 'Please provide a valid URL'
+      });
+    }
+
+    console.log(`Fetching recipe from: ${url}`);
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: 'Failed to fetch recipe',
+        message: `The recipe website returned status ${response.status}`
+      });
+    }
+
+    const html = await response.text();
+    const recipeData = extractRecipeFromHTML(html);
+    
+    if (!recipeData) {
+      return res.status(404).json({
+        error: 'Recipe not found',
+        message: 'Could not find recipe data on this page.'
+      });
+    }
+
+    res.json({
+      success: true,
+      recipe: recipeData
+    });
+
+  } catch (error) {
+    console.error('Error fetching recipe:', error);
+    res.status(500).json({
+      error: 'Server error',
+      message: 'An error occurred while fetching the recipe.'
+    });
+  }
+});
+
+// Create Stripe checkout session
+app.post('/api/create-checkout', async (req, res) => {
+  try {
+    const { userId, email } = req.body;
+    
+    if (!userId || !email) {
+      return res.status(400).json({ 
+        error: 'User ID and email required' 
+      });
+    }
+
+    // Create or get Stripe customer
+    let customer;
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('stripe_customer_id')
+      .eq('id', userId)
+      .single();
+
+    if (existingUser?.stripe_customer_id) {
+      customer = await stripe.customers.retrieve(existingUser.stripe_customer_id);
+    } else {
+      customer = await stripe.customers.create({
+        email: email,
+        metadata: { supabase_user_id: userId }
+      });
+      
+      // Store customer ID
+      await supabase
+        .from('users')
+        .upsert({ 
+          id: userId,
+          email: email,
+          stripe_customer_id: customer.id 
         });
-        
-        updatePlanUI();
-    </script>
-</body>
-</html>
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Yolksters Pro',
+              description: 'Unlimited recipes, save favorites, shopping lists, and more!',
+            },
+            unit_amount: 499,
+            recurring: {
+              interval: 'month',
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'https://yolksters.com?success=true',
+      cancel_url: 'https://yolksters.com?canceled=true',
+      metadata: {
+        supabase_user_id: userId
+      }
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({
+      error: 'Failed to create checkout session',
+      message: error.message
+    });
+  }
+});
+
+// Stripe webhook handler
+app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const userId = session.metadata.supabase_user_id;
+    const subscriptionId = session.subscription;
+
+    // Update user to Pro
+    await supabase
+      .from('users')
+      .update({ 
+        subscription_status: 'pro',
+        subscription_id: subscriptionId,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+
+    console.log(`User ${userId} upgraded to Pro`);
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object;
+    const customerId = subscription.customer;
+
+    // Find user by customer ID and downgrade
+    const { data: user } = await supabase
+      .from('users')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single();
+
+    if (user) {
+      await supabase
+        .from('users')
+        .update({ 
+          subscription_status: 'free',
+          subscription_id: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      console.log(`User ${user.id} downgraded to Free`);
+    }
+  }
+
+  res.json({received: true});
+});
+
+// Get user subscription status
+app.get('/api/user-status', async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    
+    if (!userId) {
+      return res.json({ status: 'free' });
+    }
+
+    const { data: user } = await supabase
+      .from('users')
+      .select('subscription_status')
+      .eq('id', userId)
+      .single();
+
+    res.json({ 
+      status: user?.subscription_status || 'free' 
+    });
+  } catch (error) {
+    res.json({ status: 'free' });
+  }
+});
+
+// Helper functions (unchanged)
+function extractRecipeFromHTML(html) {
+  const jsonLdMatches = html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>(.*?)<\/script>/gis);
+  
+  for (const match of jsonLdMatches) {
+    try {
+      const jsonContent = match[1].trim();
+      const data = JSON.parse(jsonContent);
+      
+      const items = Array.isArray(data) ? data : [data];
+      const allItems = [];
+      
+      for (const item of items) {
+        if (item['@graph']) {
+          allItems.push(...item['@graph']);
+        } else {
+          allItems.push(item);
+        }
+      }
+      
+      const recipe = allItems.find(item => item['@type'] === 'Recipe');
+      
+      if (recipe) {
+        return {
+          name: recipe.name || 'Untitled Recipe',
+          ingredients: extractIngredients(recipe.recipeIngredient),
+          instructions: extractInstructions(recipe.recipeInstructions),
+          servings: recipe.recipeYield || null,
+          prepTime: recipe.prepTime || null,
+          cookTime: recipe.cookTime || null,
+          totalTime: recipe.totalTime || null,
+          image: recipe.image?.url || recipe.image || null
+        };
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+  
+  return null;
+}
+
+function extractIngredients(recipeIngredient) {
+  if (!recipeIngredient) return [];
+  
+  if (Array.isArray(recipeIngredient)) {
+    return recipeIngredient.filter(i => i && typeof i === 'string');
+  }
+  
+  if (typeof recipeIngredient === 'string') {
+    return [recipeIngredient];
+  }
+  
+  return [];
+}
+
+function extractInstructions(recipeInstructions) {
+  if (!recipeInstructions) return [];
+  
+  const instructions = [];
+  
+  if (Array.isArray(recipeInstructions)) {
+    for (const instruction of recipeInstructions) {
+      if (typeof instruction === 'string') {
+        instructions.push(instruction);
+      } else if (instruction.text) {
+        instructions.push(instruction.text);
+      } else if (instruction['@type'] === 'HowToStep' && instruction.text) {
+        instructions.push(instruction.text);
+      } else if (instruction['@type'] === 'HowToSection' && instruction.itemListElement) {
+        for (const step of instruction.itemListElement) {
+          if (step.text) instructions.push(step.text);
+        }
+      }
+    }
+  } else if (typeof recipeInstructions === 'string') {
+    instructions.push(recipeInstructions);
+  } else if (recipeInstructions.text) {
+    instructions.push(recipeInstructions.text);
+  }
+  
+  return instructions.filter(i => i);
+}
+
+app.listen(PORT, () => {
+  console.log(`Yolksters API running on http://localhost:${PORT}`);
+});
+
+module.exports = app;
