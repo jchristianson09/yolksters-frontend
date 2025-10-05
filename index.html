@@ -999,7 +999,15 @@
             <div id="savedTab" class="tab-content">
                 <div class="saved-recipes">
                     <h2 style="color: #667eea; margin-bottom: 20px;">Your Saved Recipes</h2>
-                    
+                   <div style="margin-bottom: 20px;">
+                        <input 
+                            type="text" 
+                            id="recipeSearch" 
+                            placeholder="Search recipes by name or ingredient..." 
+                            style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;"
+                            oninput="filterSavedRecipes()"
+                        />
+                    </div> 
                     <div class="category-filters">
                         <button class="category-filter active" onclick="filterByCategory('all')">All</button>
                         <button class="category-filter" onclick="filterByCategory('Breakfast')">Breakfast</button>
@@ -1556,23 +1564,38 @@
             displaySavedRecipes();
         }
         
-        function displaySavedRecipes() {
+         function displaySavedRecipes() {
             const list = document.getElementById('savedRecipesList');
+            const searchTerm = document.getElementById('recipeSearch')?.value.toLowerCase() || '';
             
-            const filtered = currentCategoryFilter === 'all' 
+            // Filter by category
+            let filtered = currentCategoryFilter === 'all' 
                 ? savedRecipes 
                 : savedRecipes.filter(r => r.category === currentCategoryFilter);
             
+            // Filter by search term (name or ingredients)
+            if (searchTerm) {
+                filtered = filtered.filter(recipe => {
+                    const nameMatch = recipe.name.toLowerCase().includes(searchTerm);
+                    const ingredientMatch = recipe.ingredients.some(ing => 
+                        ing.toLowerCase().includes(searchTerm)
+                    );
+                    return nameMatch || ingredientMatch;
+                });
+            }
+            
             if (filtered.length === 0) {
-                const message = currentCategoryFilter === 'all' 
-                    ? 'No saved recipes yet. Clean a recipe and click "Save Recipe" to add it here.'
-                    : `No recipes in the ${currentCategoryFilter} category.`;
+                const message = searchTerm 
+                    ? `No recipes found matching "${searchTerm}"`
+                    : currentCategoryFilter === 'all' 
+                        ? 'No saved recipes yet. Clean a recipe and click "Save Recipe" to add it here.'
+                        : `No recipes in the ${currentCategoryFilter} category.`;
                 list.innerHTML = `<div class="empty-state"><h3>No recipes found</h3><p>${message}</p></div>`;
                 return;
             }
             
             list.innerHTML = '';
-            filtered.forEach((recipe, index) => {
+            filtered.forEach((recipe) => {
                 const actualIndex = savedRecipes.indexOf(recipe);
                 const card = document.createElement('div');
                 card.className = 'saved-recipe-card';
@@ -1607,7 +1630,9 @@
                 list.appendChild(card);
             });
         }
-        
+     function filterSavedRecipes() {
+            displaySavedRecipes();
+        }   
         function loadSavedRecipe(index) {
             currentRecipe = savedRecipes[index];
             currentScale = 1;
