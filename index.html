@@ -2123,14 +2123,15 @@
                 if (!response.ok) throw new Error('Failed to add ingredients');
                 
                 const data = await response.json();
-                shoppingList = data.items;
-                
-                alert('Ingredients added to shopping list!');
-                updateShoppingCount();
-                
-                if (document.getElementById('shoppingTab').classList.contains('active')) {
-                    displayShoppingListGrouped();
-                }
+
+alert('Ingredients added to shopping list!');
+
+// Reload the shopping list to get fresh grouped data
+await loadShoppingList();
+
+if (document.getElementById('shoppingTab').classList.contains('active')) {
+    displayShoppingListGrouped();
+}
                 
             } catch (error) {
                 console.error('Error adding to shopping list:', error);
