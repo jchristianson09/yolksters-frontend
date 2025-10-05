@@ -1101,6 +1101,13 @@
         const FREE_RECIPE_LIMIT = 3;
         
         async function initAuth() {
+    // Check if user is resetting password FIRST
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.get('type') === 'recovery') {
+        showNewPasswordForm();
+        return; // Stop here
+    }
+    
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session) {
@@ -1112,12 +1119,6 @@
     }
     
     checkPaymentStatus();
-    
-    // Check if user is resetting password
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    if (hashParams.get('type') === 'recovery') {
-        showNewPasswordForm();
-    }
 }
         
         function showAuthForm(mode = 'login') {
