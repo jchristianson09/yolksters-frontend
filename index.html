@@ -1128,8 +1128,9 @@
                         <button type="submit">${isLogin ? 'Log In' : 'Sign Up'}</button>
                     </form>
                     <div class="auth-toggle" onclick="showAuthForm('${isLogin ? 'signup' : 'login'}')">
-                        ${isLogin ? 'Need an account? Sign up' : 'Already have an account? Log in'}
-                    </div>
+    ${isLogin ? 'Need an account? Sign up' : 'Already have an account? Log in'}
+</div>
+${isLogin ? '<div class="auth-toggle" onclick="showPasswordReset()" style="margin-top: 10px;">Forgot password?</div>' : ''}
                 </div>
             `;
             
@@ -1185,7 +1186,57 @@
     
     showAuthForm();
 }
+function showPasswordReset() {
+            const authContainer = document.getElementById('authContainer');
+            
+            authContainer.innerHTML = `
+                <div class="auth-section">
+                    <h2>Reset Password</h2>
+                    <p style="color: #718096; margin-bottom: 20px;">Enter your email and we'll send you a password reset link.</p>
+                    <form class="auth-form" onsubmit="handlePasswordReset(event)">
+                        <input type="email" id="resetEmail" placeholder="Email" required />
+                        <div id="resetError" class="auth-error" style="display: none;"></div>
+                        <div id="resetSuccess" style="display: none; background: #d4edda; color: #155724; padding: 10px; border-radius: 6px; font-size: 14px; text-align: center; margin-bottom: 15px;"></div>
+                        <button type="submit">Send Reset Link</button>
+                    </form>
+                    <div class="auth-toggle" onclick="showAuthForm('login')">
+                        Back to login
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('appContainer').style.display = 'none';
+        }
         
+        async function handlePasswordReset(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('resetEmail').value;
+            const errorDiv = document.getElementById('resetError');
+            const successDiv = document.getElementById('resetSuccess');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: 'https://yolksters.com',
+                });
+                
+                if (error) throw error;
+                
+                successDiv.textContent = 'Password reset email sent! Check your inbox.';
+                successDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    showAuthForm('login');
+                }, 3000);
+                
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            }
+        }        
         async function checkUserStatus() {
             if (!currentUser) return;
             
