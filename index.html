@@ -890,6 +890,152 @@
                 box-shadow: none;
             }
         }
+    .cooking-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .cooking-mode.active {
+            display: flex;
+        }
+        
+        .cooking-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .cooking-title {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .exit-cooking {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .exit-cooking:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .cooking-ingredients {
+            background: #f7fafc;
+            padding: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .cooking-ingredients h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .cooking-ingredients-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .cooking-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .step-progress {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        
+        .step-instruction {
+            font-size: 2em;
+            line-height: 1.6;
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            max-width: 700px;
+        }
+        
+        .cooking-nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .cooking-btn {
+            padding: 20px 40px;
+            font-size: 1.3em;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        .prev-btn {
+            background: #e2e8f0;
+            color: #333;
+        }
+        
+        .prev-btn:hover:not(:disabled) {
+            background: #cbd5e0;
+        }
+        
+        .next-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .next-btn:hover:not(:disabled) {
+            background: #5568d3;
+        }
+        
+        .cooking-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .step-instruction {
+                font-size: 1.5em;
+            }
+            
+            .cooking-btn {
+                padding: 15px 30px;
+                font-size: 1.1em;
+                min-width: 120px;
+            }
+        }    
     </style>
 </head>
 <body>
@@ -990,9 +1136,10 @@
                     </div>
                     
                     <div class="action-buttons">
-                        <button class="print-btn" onclick="window.print()">Print Recipe</button>
-                        <button class="shopping-btn" onclick="addToShoppingList()">Add to Shopping List</button>
-                    </div>
+    <button class="print-btn" onclick="window.print()">Print Recipe</button>
+    <button class="shopping-btn" onclick="addToShoppingList()">Add to Shopping List</button>
+    <button onclick="startCookingMode()" style="background: #48bb78;">Start Cooking Mode</button>
+</div>
                 </div>
             </div>
             
@@ -1071,7 +1218,26 @@
             </div>
         </div>
     </div>
-    
+    <div id="cookingMode" class="cooking-mode">
+        <div class="cooking-header">
+            <div class="cooking-title" id="cookingRecipeTitle"></div>
+            <button class="exit-cooking" onclick="exitCookingMode()">Exit Cooking Mode</button>
+        </div>
+        
+        <div class="cooking-ingredients">
+            <h3>Ingredients</h3>
+            <div class="cooking-ingredients-list" id="cookingIngredientsList"></div>
+        </div>
+        
+        <div class="cooking-content">
+            <div class="step-progress" id="stepProgress"></div>
+            <div class="step-instruction" id="stepInstruction"></div>
+            <div class="cooking-nav">
+                <button class="cooking-btn prev-btn" id="prevStepBtn" onclick="previousStep()">← Previous</button>
+                <button class="cooking-btn next-btn" id="nextStepBtn" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+    </div>
     <div id="upgradeModal" class="modal-overlay">
         <div class="modal">
             <h3>Upgrade to Pro</h3>
@@ -1832,6 +1998,69 @@ function showPasswordReset() {
         });
         
         initAuth();
+    let currentStep = 0;
+        
+        function startCookingMode() {
+            if (!currentRecipe || !currentRecipe.instructions || currentRecipe.instructions.length === 0) {
+                alert('No recipe loaded');
+                return;
+            }
+            
+            currentStep = 0;
+            
+            document.getElementById('cookingRecipeTitle').textContent = currentRecipe.name;
+            
+            const ingredientsList = document.getElementById('cookingIngredientsList');
+            ingredientsList.innerHTML = '';
+            currentRecipe.ingredients.forEach(ingredient => {
+                const div = document.createElement('div');
+                div.textContent = '• ' + ingredient;
+                ingredientsList.appendChild(div);
+            });
+            
+            updateCookingStep();
+            document.getElementById('cookingMode').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function exitCookingMode() {
+            document.getElementById('cookingMode').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function updateCookingStep() {
+            const totalSteps = currentRecipe.instructions.length;
+            
+            document.getElementById('stepProgress').textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+            document.getElementById('stepInstruction').textContent = currentRecipe.instructions[currentStep];
+            
+            document.getElementById('prevStepBtn').disabled = currentStep === 0;
+            
+            const nextBtn = document.getElementById('nextStepBtn');
+            if (currentStep === totalSteps - 1) {
+                nextBtn.textContent = 'Done ✓';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+        
+        function nextStep() {
+            const totalSteps = currentRecipe.instructions.length;
+            
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                updateCookingStep();
+            } else {
+                exitCookingMode();
+            }
+        }
+        
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateCookingStep();
+            }
+        }    
     </script>
 </body>
 </html>
