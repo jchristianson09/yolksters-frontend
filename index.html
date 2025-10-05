@@ -1988,38 +1988,51 @@ function showPasswordReset() {
 }
         
         function displayShoppingList() {
-            const list = document.getElementById('shoppingListItems');
-            
-            if (shoppingList.length === 0) {
-                list.innerHTML = '<div class="empty-state"><h3>Shopping list is empty</h3><p>Add ingredients from a recipe to build your list</p></div>';
-                return;
-            }
-            
-            list.innerHTML = '';
-            shoppingList.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.onclick = () => toggleShoppingItem(index);
-                
-                const checkbox = document.createElement('div');
-                checkbox.className = 'checkbox';
-                
-                const text = document.createElement('span');
-                text.textContent = item;
-                
-                li.appendChild(checkbox);
-                li.appendChild(text);
-                list.appendChild(li);
-            });
+    const list = document.getElementById('shoppingListItems');
+    
+    if (shoppingList.length === 0) {
+        list.innerHTML = '<div class="empty-state"><h3>Shopping list is empty</h3><p>Add ingredients from a recipe to build your list</p></div>';
+        return;
+    }
+    
+    list.innerHTML = '';
+    shoppingList.forEach((itemObj, index) => {
+        const li = document.createElement('li');
+        li.onclick = () => toggleShoppingItem(index);
+        
+        const checkbox = document.createElement('div');
+        checkbox.className = 'checkbox';
+        if (itemObj.checked) {
+            checkbox.classList.add('checked');
+            li.classList.add('checked');
         }
         
-        function toggleShoppingItem(index) {
-            const items = document.querySelectorAll('#shoppingListItems li');
-            const item = items[index];
-            const checkbox = item.querySelector('.checkbox');
-            
-            item.classList.toggle('checked');
-            checkbox.classList.toggle('checked');
-        }
+        const text = document.createElement('span');
+        text.textContent = itemObj.item; // Changed from 'itemObj' to 'itemObj.item'
+        
+        li.appendChild(checkbox);
+        li.appendChild(text);
+        list.appendChild(li);
+    });
+}
+        
+        async function toggleShoppingItem(index) {
+    const items = document.querySelectorAll('#shoppingListItems li');
+    const item = items[index];
+    const checkbox = item.querySelector('.checkbox');
+    
+    item.classList.toggle('checked');
+    checkbox.classList.toggle('checked');
+    
+    // Update in database
+    const shoppingItem = shoppingList[index];
+    shoppingItem.checked = !shoppingItem.checked;
+    
+    await supabase
+        .from('shopping_list_items')
+        .update({ checked: shoppingItem.checked })
+        .eq('id', shoppingItem.id);
+}
         
         async function clearShoppingList() {
     if (confirm('Clear all items from shopping list?')) {
