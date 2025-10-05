@@ -1101,18 +1101,24 @@
         const FREE_RECIPE_LIMIT = 3;
         
         async function initAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session) {
-                currentUser = session.user;
-                await checkUserStatus();
-                showApp();
-            } else {
-                showAuthForm();
-            }
-            
-            checkPaymentStatus();
-        }
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+        currentUser = session.user;
+        await checkUserStatus();
+        showApp();
+    } else {
+        showAuthForm();
+    }
+    
+    checkPaymentStatus();
+    
+    // Check if user is resetting password
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.get('type') === 'recovery') {
+        showNewPasswordForm();
+    }
+}
         
         function showAuthForm(mode = 'login') {
             const authContainer = document.getElementById('authContainer');
@@ -1231,6 +1237,55 @@ function showPasswordReset() {
                 setTimeout(() => {
                     showAuthForm('login');
                 }, 3000);
+                
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+        function showNewPasswordForm() {
+            const authContainer = document.getElementById('authContainer');
+            
+            authContainer.innerHTML = `
+                <div class="auth-section">
+                    <h2>Set New Password</h2>
+                    <p style="color: #718096; margin-bottom: 20px;">Enter your new password below.</p>
+                    <form class="auth-form" onsubmit="handleNewPassword(event)">
+                        <input type="password" id="newPassword" placeholder="New Password (min 6 characters)" required minlength="6" />
+                        <input type="password" id="confirmPassword" placeholder="Confirm New Password" required minlength="6" />
+                        <div id="newPasswordError" class="auth-error" style="display: none;"></div>
+                        <button type="submit">Update Password</button>
+                    </form>
+                </div>
+            `;
+            
+            document.getElementById('appContainer').style.display = 'none';
+        }
+        
+        async function handleNewPassword(event) {
+            event.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('newPasswordError');
+            
+            errorDiv.style.display = 'none';
+            
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const { error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+                
+                if (error) throw error;
+                
+                alert('Password updated successfully! Please log in with your new password.');
+                window.location.href = 'https://yolksters.com';
                 
             } catch (error) {
                 errorDiv.textContent = error.message;
