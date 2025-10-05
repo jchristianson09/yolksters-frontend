@@ -1174,11 +1174,21 @@
         }
         
         async function logout() {
-            await supabase.auth.signOut();
-            currentUser = null;
-            isPro = false;
-            showAuthForm();
-        }
+    await supabase.auth.signOut();
+    currentUser = null;
+    isPro = false;
+    savedRecipes = [];
+    shoppingList = [];
+    currentRecipe = null;
+    
+    // Clear the UI
+    document.getElementById('userInfo').innerHTML = '';
+    document.getElementById('planBadge').textContent = 'Free Plan';
+    document.getElementById('planBadge').classList.remove('pro');
+    document.getElementById('result').classList.remove('visible');
+    
+    showAuthForm();
+}
         
         async function checkUserStatus() {
             if (!currentUser) return;
