@@ -1477,18 +1477,20 @@ function showPasswordReset() {
             }
         }
         
-        function showApp() {
-            document.getElementById('authContainer').innerHTML = '';
-            document.getElementById('appContainer').style.display = 'block';
-            
-            const userInfo = document.getElementById('userInfo');
-            userInfo.innerHTML = `
-                ${currentUser.email}
-                <button class="logout-btn" onclick="logout()">Log Out</button>
-            `;
-            
-            updatePlanUI();
-        }
+        async function showApp() {
+    document.getElementById('authContainer').innerHTML = '';
+    document.getElementById('appContainer').style.display = 'block';
+    
+    const userInfo = document.getElementById('userInfo');
+    userInfo.innerHTML = `
+        ${currentUser.email}
+        <button class="logout-btn" onclick="logout()">Log Out</button>
+    `;
+    
+    updatePlanUI();
+    await loadSavedRecipes();
+    await loadShoppingList();
+}
         
         function checkPaymentStatus() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1790,26 +1792,51 @@ function showPasswordReset() {
             checkbox.classList.toggle('checked');
         }
         
-        function toggleSaveRecipe() {
-            if (!isPro) {
-                showUpgradeModal('save');
-                return;
-            }
-            
-            const category = document.getElementById('categorySelect').value;
-            currentRecipe.category = category;
-            
-            const index = savedRecipes.findIndex(r => r.name === currentRecipe.name);
-            
-            if (index >= 0) {
-                savedRecipes.splice(index, 1);
-            } else {
-                savedRecipes.push({...currentRecipe});
-            }
-            
-            updateSaveButton();
-            updateSavedCount();
+        async function toggleSaveRecipe() {
+    if (!isPro) {
+        showUpgradeModal('save');
+        return;
+    }
+    
+    const category = document.getElementById('categorySelect').value;
+    currentRecipe.category = category;
+    
+    const index = savedRecipes.findIndex(r => r.name === currentRecipe.name);
+    
+    if (index >= 0) {
+        // Delete from database
+        const recipeToDelete = savedRecipes[index];
+        if (recipeToDelete.id) {
+            await supabase
+                .from('saved_recipes')
+                .delete()
+                .eq('id', recipeToDelete.id);
         }
+        savedRecipes.splice(index, 1);
+    } else {
+        // Save to database
+        const { data, error } = await supabase
+            .from('saved_recipes')
+            .insert({
+                user_id: currentUser.id,
+                name: currentRecipe.name,
+                url: currentRecipe.url || '',
+                category: currentRecipe.category || '',
+                ingredients: currentRecipe.ingredients,
+                instructions: currentRecipe.instructions,
+                original_ingredients: currentRecipe.originalIngredients
+            })
+            .select()
+            .single();
+        
+        if (!error && data) {
+            savedRecipes.push({...currentRecipe, id: data.id});
+        }
+    }
+    
+    updateSaveButton();
+    updateSavedCount();
+}
         
         function updateSaveButton() {
             const saveBtn = document.getElementById('saveBtn');
@@ -1915,29 +1942,50 @@ function showPasswordReset() {
             document.querySelector('.tab').click();
         }
         
-        function deleteSavedRecipe(index) {
-            savedRecipes.splice(index, 1);
-            displaySavedRecipes();
-            updateSavedCount();
-        }
+        async function deleteSavedRecipe(index) {
+    const recipe = savedRecipes[index];
+    
+    if (recipe.id) {
+        await supabase
+            .from('saved_recipes')
+            .delete()
+            .eq('id', recipe.id);
+    }
+    
+    savedRecipes.splice(index, 1);
+    displaySavedRecipes();
+    updateSavedCount();
+}
         
-        function addToShoppingList() {
-            if (!isPro) {
-                showUpgradeModal('shopping');
-                return;
+        async function addToShoppingList() {
+    if (!isPro) {
+        showUpgradeModal('shopping');
+        return;
+    }
+    
+    if (!currentRecipe) return;
+    
+    for (const ingredient of currentRecipe.ingredients) {
+        if (!shoppingList.some(item => item.item === ingredient)) {
+            const { data, error } = await supabase
+                .from('shopping_list_items')
+                .insert({
+                    user_id: currentUser.id,
+                    item: ingredient,
+                    checked: false
+                })
+                .select()
+                .single();
+            
+            if (!error && data) {
+                shoppingList.push(data);
             }
-            
-            if (!currentRecipe) return;
-            
-            currentRecipe.ingredients.forEach(ingredient => {
-                if (!shoppingList.includes(ingredient)) {
-                    shoppingList.push(ingredient);
-                }
-            });
-            
-            updateShoppingCount();
-            alert('Ingredients added to shopping list');
         }
+    }
+    
+    updateShoppingCount();
+    alert('Ingredients added to shopping list');
+}
         
         function displayShoppingList() {
             const list = document.getElementById('shoppingListItems');
@@ -1973,13 +2021,18 @@ function showPasswordReset() {
             checkbox.classList.toggle('checked');
         }
         
-        function clearShoppingList() {
-            if (confirm('Clear all items from shopping list?')) {
-                shoppingList = [];
-                displayShoppingList();
-                updateShoppingCount();
-            }
-        }
+        async function clearShoppingList() {
+    if (confirm('Clear all items from shopping list?')) {
+        await supabase
+            .from('shopping_list_items')
+            .delete()
+            .eq('user_id', currentUser.id);
+        
+        shoppingList = [];
+        displayShoppingList();
+        updateShoppingCount();
+    }
+}
         
         function updateShoppingCount() {
             document.getElementById('shoppingCount').textContent = shoppingList.length;
@@ -2060,7 +2113,40 @@ function showPasswordReset() {
                 currentStep--;
                 updateCookingStep();
             }
-        }    
+        }
+        async function loadSavedRecipes() {
+    const { data, error } = await supabase
+        .from('saved_recipes')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+        savedRecipes = data.map(recipe => ({
+            id: recipe.id,
+            name: recipe.name,
+            url: recipe.url,
+            category: recipe.category,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+            originalIngredients: recipe.original_ingredients
+        }));
+        updateSavedCount();
+    }
+}
+
+async function loadShoppingList() {
+    const { data, error } = await supabase
+        .from('shopping_list_items')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: true });
+    
+    if (!error && data) {
+        shoppingList = data;
+        updateShoppingCount();
+    }
+}    
     </script>
 </body>
 </html>
