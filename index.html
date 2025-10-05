@@ -684,6 +684,135 @@
             margin-top: 20px;
         }
         
+        /* NEW SMART SHOPPING LIST STYLES */
+        .shopping-list-bulk-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .bulk-action-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .bulk-action-btn:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+        
+        .bulk-action-btn.delete {
+            color: #dc3545;
+        }
+        
+        .bulk-action-btn.delete:hover {
+            background: #fff5f5;
+            border-color: #dc3545;
+        }
+        
+        .shopping-category {
+            margin-bottom: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        
+        .category-header:hover {
+            background: #e9ecef;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #495057;
+        }
+        
+        .category-count {
+            font-size: 13px;
+            color: #6c757d;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+        
+        .category-arrow {
+            font-size: 12px;
+            color: #6c757d;
+            transition: transform 0.2s;
+        }
+        
+        .category-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .category-items li {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-top: 1px solid #f1f3f5;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .category-items li:hover {
+            background: #f8f9fa;
+        }
+        
+        .category-items li.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .category-items .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        
+        .category-items .checkbox.checked {
+            background: #28a745;
+            border-color: #28a745;
+            position: relative;
+        }
+        
+        .category-items .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        /* END NEW SMART SHOPPING LIST STYLES */
+        
         .pricing-section {
             background: white;
             padding: 40px;
@@ -890,7 +1019,8 @@
                 box-shadow: none;
             }
         }
-    .cooking-mode {
+        
+        .cooking-mode {
             position: fixed;
             top: 0;
             left: 0;
@@ -1035,7 +1165,15 @@
                 font-size: 1.1em;
                 min-width: 120px;
             }
-        }    
+            
+            .shopping-list-bulk-actions {
+                flex-direction: column;
+            }
+            
+            .bulk-action-btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1136,17 +1274,17 @@
                     </div>
                     
                     <div class="action-buttons">
-    <button class="print-btn" onclick="window.print()">Print Recipe</button>
-    <button class="shopping-btn" onclick="addToShoppingList()">Add to Shopping List</button>
-    <button onclick="startCookingMode()" style="background: #48bb78;">Start Cooking Mode</button>
-</div>
+                        <button class="print-btn" onclick="window.print()">Print Recipe</button>
+                        <button class="shopping-btn" onclick="addToShoppingList()">Add to Shopping List</button>
+                        <button onclick="startCookingMode()" style="background: #48bb78;">Start Cooking Mode</button>
+                    </div>
                 </div>
             </div>
             
             <div id="savedTab" class="tab-content">
                 <div class="saved-recipes">
                     <h2 style="color: #667eea; margin-bottom: 20px;">Your Saved Recipes</h2>
-                   <div style="margin-bottom: 20px;">
+                    <div style="margin-bottom: 20px;">
                         <input 
                             type="text" 
                             id="recipeSearch" 
@@ -1171,7 +1309,7 @@
             <div id="shoppingTab" class="tab-content">
                 <div class="shopping-list">
                     <h2>Shopping List</h2>
-                    <ul id="shoppingListItems" class="ingredients-list"></ul>
+                    <div id="shoppingListItems"></div>
                     <button class="clear-list-btn" onclick="clearShoppingList()">Clear List</button>
                 </div>
             </div>
@@ -1211,13 +1349,12 @@
                             </ul>
                             <button class="select-plan-btn primary" onclick="selectPlan('pro-monthly')">Upgrade Now</button>
                         </div>
-                        
-                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
     <div id="cookingMode" class="cooking-mode">
         <div class="cooking-header">
             <div class="cooking-title" id="cookingRecipeTitle"></div>
@@ -1238,6 +1375,7 @@
             </div>
         </div>
     </div>
+    
     <div id="upgradeModal" class="modal-overlay">
         <div class="modal">
             <h3>Upgrade to Pro</h3>
@@ -1257,9 +1395,11 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentUser = null;
+        let session = null;
         let currentRecipe = null;
         let savedRecipes = [];
         let shoppingList = [];
+        let shoppingListGrouped = {}; // NEW VARIABLE
         let currentScale = 1;
         let isPro = false;
         let recipesCleanedThisMonth = 0;
@@ -1267,25 +1407,25 @@
         const FREE_RECIPE_LIMIT = 3;
         
         async function initAuth() {
-    // Check if user is resetting password FIRST
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    if (hashParams.get('type') === 'recovery') {
-        showNewPasswordForm();
-        return; // Stop here
-    }
-    
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-        currentUser = session.user;
-        await checkUserStatus();
-        showApp();
-    } else {
-        showAuthForm();
-    }
-    
-    checkPaymentStatus();
-}
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            if (hashParams.get('type') === 'recovery') {
+                showNewPasswordForm();
+                return;
+            }
+            
+            const { data: { session: userSession } } = await supabase.auth.getSession();
+            
+            if (userSession) {
+                session = userSession;
+                currentUser = userSession.user;
+                await checkUserStatus();
+                showApp();
+            } else {
+                showAuthForm();
+            }
+            
+            checkPaymentStatus();
+        }
         
         function showAuthForm(mode = 'login') {
             const authContainer = document.getElementById('authContainer');
@@ -1301,9 +1441,9 @@
                         <button type="submit">${isLogin ? 'Log In' : 'Sign Up'}</button>
                     </form>
                     <div class="auth-toggle" onclick="showAuthForm('${isLogin ? 'signup' : 'login'}')">
-    ${isLogin ? 'Need an account? Sign up' : 'Already have an account? Log in'}
-</div>
-${isLogin ? '<div class="auth-toggle" onclick="showPasswordReset()" style="margin-top: 10px;">Forgot password?</div>' : ''}
+                        ${isLogin ? 'Need an account? Sign up' : 'Already have an account? Log in'}
+                    </div>
+                    ${isLogin ? '<div class="auth-toggle" onclick="showPasswordReset()" style="margin-top: 10px;">Forgot password?</div>' : ''}
                 </div>
             `;
             
@@ -1333,6 +1473,7 @@ ${isLogin ? '<div class="auth-toggle" onclick="showPasswordReset()" style="margi
                     alert('Account created successfully. Please log in.');
                     showAuthForm('login');
                 } else {
+                    session = result.data.session;
                     currentUser = result.data.user;
                     await checkUserStatus();
                     showApp();
@@ -1344,22 +1485,24 @@ ${isLogin ? '<div class="auth-toggle" onclick="showPasswordReset()" style="margi
         }
         
         async function logout() {
-    await supabase.auth.signOut();
-    currentUser = null;
-    isPro = false;
-    savedRecipes = [];
-    shoppingList = [];
-    currentRecipe = null;
-    
-    // Clear the UI
-    document.getElementById('userInfo').innerHTML = '';
-    document.getElementById('planBadge').textContent = 'Free Plan';
-    document.getElementById('planBadge').classList.remove('pro');
-    document.getElementById('result').classList.remove('visible');
-    
-    showAuthForm();
-}
-function showPasswordReset() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            session = null;
+            isPro = false;
+            savedRecipes = [];
+            shoppingList = [];
+            shoppingListGrouped = {};
+            currentRecipe = null;
+            
+            document.getElementById('userInfo').innerHTML = '';
+            document.getElementById('planBadge').textContent = 'Free Plan';
+            document.getElementById('planBadge').classList.remove('pro');
+            document.getElementById('result').classList.remove('visible');
+            
+            showAuthForm();
+        }
+        
+        function showPasswordReset() {
             const authContainer = document.getElementById('authContainer');
             
             authContainer.innerHTML = `
@@ -1410,6 +1553,7 @@ function showPasswordReset() {
                 errorDiv.style.display = 'block';
             }
         }
+        
         function showNewPasswordForm() {
             const authContainer = document.getElementById('authContainer');
             
@@ -1458,7 +1602,8 @@ function showPasswordReset() {
                 errorDiv.textContent = error.message;
                 errorDiv.style.display = 'block';
             }
-        }        
+        }
+        
         async function checkUserStatus() {
             if (!currentUser) return;
             
@@ -1478,19 +1623,19 @@ function showPasswordReset() {
         }
         
         async function showApp() {
-    document.getElementById('authContainer').innerHTML = '';
-    document.getElementById('appContainer').style.display = 'block';
-    
-    const userInfo = document.getElementById('userInfo');
-    userInfo.innerHTML = `
-        ${currentUser.email}
-        <button class="logout-btn" onclick="logout()">Log Out</button>
-    `;
-    
-    updatePlanUI();
-    await loadSavedRecipes();
-    await loadShoppingList();
-}
+            document.getElementById('authContainer').innerHTML = '';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            const userInfo = document.getElementById('userInfo');
+            userInfo.innerHTML = `
+                ${currentUser.email}
+                <button class="logout-btn" onclick="logout()">Log Out</button>
+            `;
+            
+            updatePlanUI();
+            await loadSavedRecipes();
+            await loadShoppingList();
+        }
         
         function checkPaymentStatus() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1585,8 +1730,6 @@ function showPasswordReset() {
                     console.error('Error:', error);
                     alert('Failed to start checkout.');
                 }
-            } else if (plan === 'extension') {
-                alert('Browser extension coming soon.');
             }
         }
         
@@ -1600,7 +1743,7 @@ function showPasswordReset() {
             if (tab === 'saved') {
                 displaySavedRecipes();
             } else if (tab === 'shopping') {
-                displayShoppingList();
+                displayShoppingListGrouped(); // CHANGED FROM displayShoppingList()
             }
         }
         
@@ -1793,50 +1936,48 @@ function showPasswordReset() {
         }
         
         async function toggleSaveRecipe() {
-    if (!isPro) {
-        showUpgradeModal('save');
-        return;
-    }
-    
-    const category = document.getElementById('categorySelect').value;
-    currentRecipe.category = category;
-    
-    const index = savedRecipes.findIndex(r => r.name === currentRecipe.name);
-    
-    if (index >= 0) {
-        // Delete from database
-        const recipeToDelete = savedRecipes[index];
-        if (recipeToDelete.id) {
-            await supabase
-                .from('saved_recipes')
-                .delete()
-                .eq('id', recipeToDelete.id);
+            if (!isPro) {
+                showUpgradeModal('save');
+                return;
+            }
+            
+            const category = document.getElementById('categorySelect').value;
+            currentRecipe.category = category;
+            
+            const index = savedRecipes.findIndex(r => r.name === currentRecipe.name);
+            
+            if (index >= 0) {
+                const recipeToDelete = savedRecipes[index];
+                if (recipeToDelete.id) {
+                    await supabase
+                        .from('saved_recipes')
+                        .delete()
+                        .eq('id', recipeToDelete.id);
+                }
+                savedRecipes.splice(index, 1);
+            } else {
+                const { data, error } = await supabase
+                    .from('saved_recipes')
+                    .insert({
+                        user_id: currentUser.id,
+                        name: currentRecipe.name,
+                        url: currentRecipe.url || '',
+                        category: currentRecipe.category || '',
+                        ingredients: currentRecipe.ingredients,
+                        instructions: currentRecipe.instructions,
+                        original_ingredients: currentRecipe.originalIngredients
+                    })
+                    .select()
+                    .single();
+                
+                if (!error && data) {
+                    savedRecipes.push({...currentRecipe, id: data.id});
+                }
+            }
+            
+            updateSaveButton();
+            updateSavedCount();
         }
-        savedRecipes.splice(index, 1);
-    } else {
-        // Save to database
-        const { data, error } = await supabase
-            .from('saved_recipes')
-            .insert({
-                user_id: currentUser.id,
-                name: currentRecipe.name,
-                url: currentRecipe.url || '',
-                category: currentRecipe.category || '',
-                ingredients: currentRecipe.ingredients,
-                instructions: currentRecipe.instructions,
-                original_ingredients: currentRecipe.originalIngredients
-            })
-            .select()
-            .single();
-        
-        if (!error && data) {
-            savedRecipes.push({...currentRecipe, id: data.id});
-        }
-    }
-    
-    updateSaveButton();
-    updateSavedCount();
-}
         
         function updateSaveButton() {
             const saveBtn = document.getElementById('saveBtn');
@@ -1864,16 +2005,14 @@ function showPasswordReset() {
             displaySavedRecipes();
         }
         
-         function displaySavedRecipes() {
+        function displaySavedRecipes() {
             const list = document.getElementById('savedRecipesList');
             const searchTerm = document.getElementById('recipeSearch')?.value.toLowerCase() || '';
             
-            // Filter by category
             let filtered = currentCategoryFilter === 'all' 
                 ? savedRecipes 
                 : savedRecipes.filter(r => r.category === currentCategoryFilter);
             
-            // Filter by search term (name or ingredients)
             if (searchTerm) {
                 filtered = filtered.filter(recipe => {
                     const nameMatch = recipe.name.toLowerCase().includes(searchTerm);
@@ -1930,9 +2069,11 @@ function showPasswordReset() {
                 list.appendChild(card);
             });
         }
-     function filterSavedRecipes() {
+        
+        function filterSavedRecipes() {
             displaySavedRecipes();
-        }   
+        }
+        
         function loadSavedRecipe(index) {
             currentRecipe = savedRecipes[index];
             currentScale = 1;
@@ -1943,109 +2084,240 @@ function showPasswordReset() {
         }
         
         async function deleteSavedRecipe(index) {
-    const recipe = savedRecipes[index];
-    
-    if (recipe.id) {
-        await supabase
-            .from('saved_recipes')
-            .delete()
-            .eq('id', recipe.id);
-    }
-    
-    savedRecipes.splice(index, 1);
-    displaySavedRecipes();
-    updateSavedCount();
-}
-        
-        async function addToShoppingList() {
-    if (!isPro) {
-        showUpgradeModal('shopping');
-        return;
-    }
-    
-    if (!currentRecipe) return;
-    
-    for (const ingredient of currentRecipe.ingredients) {
-        if (!shoppingList.some(item => item.item === ingredient)) {
-            const { data, error } = await supabase
-                .from('shopping_list_items')
-                .insert({
-                    user_id: currentUser.id,
-                    item: ingredient,
-                    checked: false
-                })
-                .select()
-                .single();
+            const recipe = savedRecipes[index];
             
-            if (!error && data) {
-                shoppingList.push(data);
+            if (recipe.id) {
+                await supabase
+                    .from('saved_recipes')
+                    .delete()
+                    .eq('id', recipe.id);
+            }
+            
+            savedRecipes.splice(index, 1);
+            displaySavedRecipes();
+            updateSavedCount();
+        }
+        
+        // NEW SMART SHOPPING LIST FUNCTIONS
+        async function addToShoppingList() {
+            if (!isPro) {
+                showUpgradeModal('shopping');
+                return;
+            }
+            
+            if (!currentRecipe) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/shopping-list/add-ingredients`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        ingredients: currentRecipe.ingredients
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Failed to add ingredients');
+                
+                const data = await response.json();
+                shoppingList = data.items;
+                
+                alert('Ingredients added to shopping list!');
+                updateShoppingCount();
+                
+                if (document.getElementById('shoppingTab').classList.contains('active')) {
+                    displayShoppingListGrouped();
+                }
+                
+            } catch (error) {
+                console.error('Error adding to shopping list:', error);
+                alert('Failed to add ingredients to shopping list');
             }
         }
-    }
-    
-    updateShoppingCount();
-    alert('Ingredients added to shopping list');
-}
         
-        function displayShoppingList() {
-    const list = document.getElementById('shoppingListItems');
-    
-    if (shoppingList.length === 0) {
-        list.innerHTML = '<div class="empty-state"><h3>Shopping list is empty</h3><p>Add ingredients from a recipe to build your list</p></div>';
-        return;
-    }
-    
-    list.innerHTML = '';
-    shoppingList.forEach((itemObj, index) => {
-        const li = document.createElement('li');
-        li.onclick = () => toggleShoppingItem(index);
-        
-        const checkbox = document.createElement('div');
-        checkbox.className = 'checkbox';
-        if (itemObj.checked) {
-            checkbox.classList.add('checked');
-            li.classList.add('checked');
+        async function loadShoppingList() {
+            try {
+                const response = await fetch(`${API_URL}/api/shopping-list/grouped`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load shopping list');
+                
+                const data = await response.json();
+                shoppingListGrouped = data.grouped;
+                shoppingList = Object.values(data.grouped).flat();
+                
+                updateShoppingCount();
+                displayShoppingListGrouped();
+                
+            } catch (error) {
+                console.error('Error loading shopping list:', error);
+            }
         }
         
-        const text = document.createElement('span');
-        text.textContent = itemObj.item; // Changed from 'itemObj' to 'itemObj.item'
+        function displayShoppingListGrouped() {
+            const container = document.getElementById('shoppingListItems');
+            
+            if (!shoppingListGrouped || Object.keys(shoppingListGrouped).length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>Shopping list is empty</h3><p>Add ingredients from a recipe to build your list</p></div>';
+                return;
+            }
+            
+            let html = '<div class="shopping-list-bulk-actions">';
+            html += '<button onclick="bulkCheckAll()" class="bulk-action-btn">✓ Check All</button>';
+            html += '<button onclick="bulkUncheckAll()" class="bulk-action-btn">○ Uncheck All</button>';
+            html += '<button onclick="deleteCheckedItems()" class="bulk-action-btn delete">🗑 Delete Checked</button>';
+            html += '</div>';
+            
+            const categories = Object.keys(shoppingListGrouped);
+            
+            categories.forEach(category => {
+                const items = shoppingListGrouped[category];
+                
+                html += `<div class="shopping-category">`;
+                html += `<div class="category-header" onclick="toggleCategory('${category}')">`;
+                html += `<span class="category-name">${category}</span>`;
+                html += `<span class="category-count">${items.length} items</span>`;
+                html += `<span class="category-arrow">▼</span>`;
+                html += `</div>`;
+                html += `<ul class="category-items" id="category-${category}">`;
+                
+                items.forEach(item => {
+                    const checkedClass = item.checked ? 'checked' : '';
+                    html += `<li class="${checkedClass}" onclick="toggleShoppingItemById('${item.id}')">`;
+                    html += `<div class="checkbox ${checkedClass}"></div>`;
+                    html += `<span>${item.item}</span>`;
+                    html += `</li>`;
+                });
+                
+                html += `</ul></div>`;
+            });
+            
+            container.innerHTML = html;
+        }
         
-        li.appendChild(checkbox);
-        li.appendChild(text);
-        list.appendChild(li);
-    });
-}
+        function toggleCategory(category) {
+            const items = document.getElementById(`category-${category}`);
+            const header = items.previousElementSibling;
+            const arrow = header.querySelector('.category-arrow');
+            
+            if (items.style.display === 'none') {
+                items.style.display = 'block';
+                arrow.textContent = '▼';
+            } else {
+                items.style.display = 'none';
+                arrow.textContent = '▶';
+            }
+        }
         
-        async function toggleShoppingItem(index) {
-    const items = document.querySelectorAll('#shoppingListItems li');
-    const item = items[index];
-    const checkbox = item.querySelector('.checkbox');
-    
-    item.classList.toggle('checked');
-    checkbox.classList.toggle('checked');
-    
-    // Update in database
-    const shoppingItem = shoppingList[index];
-    shoppingItem.checked = !shoppingItem.checked;
-    
-    await supabase
-        .from('shopping_list_items')
-        .update({ checked: shoppingItem.checked })
-        .eq('id', shoppingItem.id);
-}
+        async function toggleShoppingItemById(itemId) {
+            const item = shoppingList.find(i => i.id === itemId);
+            if (!item) return;
+            
+            item.checked = !item.checked;
+            
+            try {
+                await supabase
+                    .from('shopping_list_items')
+                    .update({ checked: item.checked })
+                    .eq('id', itemId);
+                
+                displayShoppingListGrouped();
+                
+            } catch (error) {
+                console.error('Error toggling item:', error);
+            }
+        }
+        
+        async function bulkCheckAll() {
+            try {
+                const response = await fetch(`${API_URL}/api/shopping-list/bulk-check`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({ checked: true })
+                });
+                
+                if (!response.ok) throw new Error('Failed to check all items');
+                
+                await loadShoppingList();
+                
+            } catch (error) {
+                console.error('Error checking all:', error);
+                alert('Failed to check all items');
+            }
+        }
+        
+        async function bulkUncheckAll() {
+            try {
+                const response = await fetch(`${API_URL}/api/shopping-list/bulk-check`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({ checked: false })
+                });
+                
+                if (!response.ok) throw new Error('Failed to uncheck all items');
+                
+                await loadShoppingList();
+                
+            } catch (error) {
+                console.error('Error unchecking all:', error);
+                alert('Failed to uncheck all items');
+            }
+        }
+        
+        async function deleteCheckedItems() {
+            if (!confirm('Delete all checked items?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/shopping-list/delete-checked`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete checked items');
+                
+                await loadShoppingList();
+                
+            } catch (error) {
+                console.error('Error deleting checked:', error);
+                alert('Failed to delete checked items');
+            }
+        }
         
         async function clearShoppingList() {
-    if (confirm('Clear all items from shopping list?')) {
-        await supabase
-            .from('shopping_list_items')
-            .delete()
-            .eq('user_id', currentUser.id);
-        
-        shoppingList = [];
-        displayShoppingList();
-        updateShoppingCount();
-    }
-}
+            if (confirm('Clear all items from shopping list?')) {
+                try {
+                    const { error } = await supabase
+                        .from('shopping_list_items')
+                        .delete()
+                        .eq('user_id', currentUser.id);
+                    
+                    if (error) throw error;
+                    
+                    shoppingList = [];
+                    shoppingListGrouped = {};
+                    displayShoppingListGrouped();
+                    updateShoppingCount();
+                    
+                } catch (error) {
+                    console.error('Error clearing shopping list:', error);
+                    alert('Failed to clear shopping list');
+                }
+            }
+        }
+        // END NEW SMART SHOPPING LIST FUNCTIONS
         
         function updateShoppingCount() {
             document.getElementById('shoppingCount').textContent = shoppingList.length;
@@ -2063,8 +2335,7 @@ function showPasswordReset() {
             }
         });
         
-        initAuth();
-    let currentStep = 0;
+        let currentStep = 0;
         
         function startCookingMode() {
             if (!currentRecipe || !currentRecipe.instructions || currentRecipe.instructions.length === 0) {
@@ -2127,39 +2398,29 @@ function showPasswordReset() {
                 updateCookingStep();
             }
         }
+        
         async function loadSavedRecipes() {
-    const { data, error } = await supabase
-        .from('saved_recipes')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-    
-    if (!error && data) {
-        savedRecipes = data.map(recipe => ({
-            id: recipe.id,
-            name: recipe.name,
-            url: recipe.url,
-            category: recipe.category,
-            ingredients: recipe.ingredients,
-            instructions: recipe.instructions,
-            originalIngredients: recipe.original_ingredients
-        }));
-        updateSavedCount();
-    }
-}
-
-async function loadShoppingList() {
-    const { data, error } = await supabase
-        .from('shopping_list_items')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: true });
-    
-    if (!error && data) {
-        shoppingList = data;
-        updateShoppingCount();
-    }
-}    
+            const { data, error } = await supabase
+                .from('saved_recipes')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+            
+            if (!error && data) {
+                savedRecipes = data.map(recipe => ({
+                    id: recipe.id,
+                    name: recipe.name,
+                    url: recipe.url,
+                    category: recipe.category,
+                    ingredients: recipe.ingredients,
+                    instructions: recipe.instructions,
+                    originalIngredients: recipe.original_ingredients
+                }));
+                updateSavedCount();
+            }
+        }
+        
+        initAuth();
     </script>
 </body>
 </html>
