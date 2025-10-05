@@ -2102,43 +2102,57 @@
         
         // NEW SMART SHOPPING LIST FUNCTIONS
         async function addToShoppingList() {
-            if (!isPro) {
-                showUpgradeModal('shopping');
-                return;
-            }
-            
-            if (!currentRecipe) return;
-            
-            try {
-                const response = await fetch(`${API_URL}/api/shopping-list/add-ingredients`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
-                    },
-                    body: JSON.stringify({
-                        ingredients: currentRecipe.ingredients
-                    })
-                });
-                
-                if (!response.ok) throw new Error('Failed to add ingredients');
-                
-                const data = await response.json();
-
-alert('Ingredients added to shopping list!');
-
-// Reload the shopping list to get fresh grouped data
-await loadShoppingList();
-
-if (document.getElementById('shoppingTab').classList.contains('active')) {
-    displayShoppingListGrouped();
-}
-                
-            } catch (error) {
-                console.error('Error adding to shopping list:', error);
-                alert('Failed to add ingredients to shopping list');
-            }
+    if (!isPro) {
+        showUpgradeModal('shopping');
+        return;
+    }
+    
+    if (!currentRecipe) return;
+    
+    // Check if recipe already added by looking for matching ingredients
+    const recipeIngredientsText = currentRecipe.ingredients.join('|');
+    const existingIngredientsText = shoppingList.map(item => item.item).join('|');
+    
+    // Simple check: if most ingredients already exist, assume recipe is added
+    const matchCount = currentRecipe.ingredients.filter(ing => 
+        existingIngredientsText.toLowerCase().includes(ing.toLowerCase())
+    ).length;
+    
+    if (matchCount >= currentRecipe.ingredients.length * 0.8) { // 80% match threshold
+        alert('Most ingredients from this recipe are already in your shopping list!');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/api/shopping-list/add-ingredients`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+                ingredients: currentRecipe.ingredients
+            })
+        });
+        
+        if (!response.ok) throw new Error('Failed to add ingredients');
+        
+        const data = await response.json();
+        
+        alert('Ingredients added to shopping list!');
+        
+        // Reload the shopping list to get fresh grouped data
+        await loadShoppingList();
+        
+        if (document.getElementById('shoppingTab').classList.contains('active')) {
+            displayShoppingListGrouped();
         }
+        
+    } catch (error) {
+        console.error('Error adding to shopping list:', error);
+        alert('Failed to add ingredients to shopping list');
+    }
+}
         
         async function loadShoppingList() {
             try {
