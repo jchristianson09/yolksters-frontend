@@ -1683,11 +1683,11 @@
             const message = document.getElementById('modalMessage');
             
             const messages = {
-                'save': 'Saving recipes requires Yolksters Pro.',
-                'shopping': 'Shopping lists require Yolksters Pro.',
-                'scaling': 'Recipe scaling requires Yolksters Pro.',
-                'limit': `You've reached your free limit of ${FREE_RECIPE_LIMIT} recipes this month.`
-            };
+    'save': 'Saving recipes requires Yolksters Pro.',
+    'shopping': 'Shopping lists require Yolksters Pro.',
+    'scaling': 'Recipe scaling requires Yolksters Pro.',
+    'cooking': 'Cooking mode requires Yolksters Pro.'
+};
             
             message.textContent = messages[feature] || 'This feature requires a Pro subscription';
             modal.classList.add('visible');
@@ -2380,10 +2380,15 @@
         let currentStep = 0;
         
         function startCookingMode() {
-            if (!currentRecipe || !currentRecipe.instructions || currentRecipe.instructions.length === 0) {
-                alert('No recipe loaded');
-                return;
-            }
+    if (!isPro) {
+        showUpgradeModal('cooking');
+        return;
+    }
+    
+    if (!currentRecipe || !currentRecipe.instructions || currentRecipe.instructions.length === 0) {
+        alert('No recipe loaded');
+        return;
+    }
             
             currentStep = 0;
             
