@@ -1211,12 +1211,7 @@
             
             <div id="cleanTab" class="tab-content active">
                 <div class="input-section">
-                    <div id="usageBanner" class="usage-banner">
-                        <div>
-                            <strong>Free Plan:</strong> <span id="usageText">3 recipes this month (0/3 used)</span>
-                        </div>
-                        <button class="upgrade-btn-small" onclick="switchTab('pricing'); document.querySelectorAll('.tab')[3].click();">Upgrade</button>
-                    </div>
+                    
                     
                     <div class="input-group">
                         <input type="url" id="recipeUrl" placeholder="Paste recipe URL here..." />
@@ -1404,9 +1399,9 @@
         let shoppingListGrouped = {}; // NEW VARIABLE
         let currentScale = 1;
         let isPro = false;
-        let recipesCleanedThisMonth = 0;
+        
         let currentCategoryFilter = 'all';
-        const FREE_RECIPE_LIMIT = 3;
+        
         
         async function initAuth() {
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -1654,32 +1649,20 @@
         
         function updatePlanUI() {
             const badge = document.getElementById('planBadge');
-            const usageBanner = document.getElementById('usageBanner');
+            
             
             if (isPro) {
                 badge.textContent = 'Pro Plan';
                 badge.classList.add('pro');
-                usageBanner.style.display = 'none';
+                
             } else {
                 badge.textContent = 'Free Plan';
                 badge.classList.remove('pro');
-                updateUsageBanner();
+                
             }
         }
         
-        function updateUsageBanner() {
-            const usageText = document.getElementById('usageText');
-            const usageBanner = document.getElementById('usageBanner');
-            const remaining = FREE_RECIPE_LIMIT - recipesCleanedThisMonth;
-            
-            if (remaining <= 0) {
-                usageBanner.classList.add('limit-reached');
-                usageText.innerHTML = `<strong>Limit reached.</strong> You've used all 3 free recipes this month.`;
-            } else {
-                usageBanner.classList.remove('limit-reached');
-                usageText.textContent = `${remaining} recipes remaining this month (${recipesCleanedThisMonth}/${FREE_RECIPE_LIMIT} used)`;
-            }
-        }
+        
         
         function showUpgradeModal(feature) {
             const modal = document.getElementById('upgradeModal');
@@ -1792,10 +1775,7 @@
             currentRecipe = demoRecipe;
             currentScale = 1;
             
-            if (!isPro) {
-                recipesCleanedThisMonth++;
-                updateUsageBanner();
-            }
+            
             
             displayRecipe(demoRecipe);
             updateSaveButton();
@@ -1803,10 +1783,7 @@
         }
         
         async function cleanRecipe() {
-            if (!isPro && recipesCleanedThisMonth >= FREE_RECIPE_LIMIT) {
-                showUpgradeModal('limit');
-                return;
-            }
+            
             
             const urlInput = document.getElementById('recipeUrl');
             const url = urlInput.value.trim();
@@ -1848,10 +1825,7 @@
                 
                 currentScale = 1;
                 
-                if (!isPro) {
-                    recipesCleanedThisMonth++;
-                    updateUsageBanner();
-                }
+                
                 
                 displayRecipe(currentRecipe);
                 updateSaveButton();
