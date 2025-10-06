@@ -1199,7 +1199,100 @@
             <div class="user-info" id="userInfo"></div>
             <div class="plan-badge" id="planBadge">Free Plan</div>
         </div>
-        
+        <!-- LANDING PAGE (shows when not logged in) -->
+<div id="landingPage" style="display: none;">
+    <!-- Hero Section -->
+    <div style="background: white; border-radius: 12px; padding: 60px 40px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 40px;">
+        <h2 style="font-size: 2.5em; color: #333; margin-bottom: 20px; line-height: 1.2;">
+            Stop Reading Life Stories.<br>Start Cooking.
+        </h2>
+        <p style="font-size: 1.3em; color: #718096; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Tired of scrolling through paragraphs about someone's grandmother just to find a chocolate chip cookie recipe? Yolksters strips away the fluff and gives you clean recipes instantly.
+        </p>
+        <button onclick="showAuthForm('signup')" style="background: #667eea; color: white; padding: 20px 40px; font-size: 1.2em; border-radius: 10px; border: none; cursor: pointer; font-weight: 700; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+            Get Started Free
+        </button>
+        <p style="color: #718096; margin-top: 15px; font-size: 0.9em;">No credit card required</p>
+    </div>
+
+    <!-- How It Works -->
+    <div style="background: white; border-radius: 12px; padding: 50px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 40px;">
+        <h3 style="text-align: center; font-size: 2em; color: #333; margin-bottom: 40px;">How It Works</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+            <div style="text-align: center;">
+                <div style="font-size: 3em; margin-bottom: 15px;">🔗</div>
+                <h4 style="color: #667eea; margin-bottom: 10px; font-size: 1.3em;">1. Paste URL</h4>
+                <p style="color: #718096;">Copy any recipe link from your favorite food blog</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 3em; margin-bottom: 15px;">✨</div>
+                <h4 style="color: #667eea; margin-bottom: 10px; font-size: 1.3em;">2. We Clean It</h4>
+                <p style="color: #718096;">Our magic removes ads, stories, and fluff in seconds</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 3em; margin-bottom: 15px;">👨‍🍳</div>
+                <h4 style="color: #667eea; margin-bottom: 10px; font-size: 1.3em;">3. Start Cooking</h4>
+                <p style="color: #718096;">Get just the ingredients and instructions you need</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div style="background: white; border-radius: 12px; padding: 50px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 40px;">
+        <h3 style="text-align: center; font-size: 2em; color: #333; margin-bottom: 40px;">What Home Cooks Are Saying</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+            <!-- Review 1 -->
+            <div style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 25px;">
+                <div style="color: #fbbf24; margin-bottom: 10px; font-size: 1.2em;">★★★★★</div>
+                <p style="color: #333; margin-bottom: 15px; font-style: italic;">"Finally! No more scrolling through someone's trip to Italy just to make pasta. This saves me so much time."</p>
+                <p style="color: #667eea; font-weight: 600;">- Sarah M.</p>
+            </div>
+            <!-- Review 2 -->
+            <div style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 25px;">
+                <div style="color: #fbbf24; margin-bottom: 10px; font-size: 1.2em;">★★★★★</div>
+                <p style="color: #333; margin-bottom: 15px; font-style: italic;">"The shopping list feature is a game changer. I add 3 recipes and boom - grocery list ready to go."</p>
+                <p style="color: #667eea; font-weight: 600;">- James T.</p>
+            </div>
+            <!-- Review 3 -->
+            <div style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 25px;">
+                <div style="color: #fbbf24; margin-bottom: 10px; font-size: 1.2em;">★★★★★</div>
+                <p style="color: #333; margin-bottom: 15px; font-style: italic;">"Clean, simple, exactly what I needed. Worth every penny for the Pro plan."</p>
+                <p style="color: #667eea; font-weight: 600;">- Emily R.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Preview -->
+    <div style="background: white; border-radius: 12px; padding: 50px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 40px;">
+        <h3 style="text-align: center; font-size: 2em; color: #333; margin-bottom: 20px;">Simple Pricing</h3>
+        <p style="text-align: center; color: #718096; margin-bottom: 40px; font-size: 1.1em;">Start free, upgrade when you're ready</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 700px; margin: 0 auto;">
+            <div style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 30px; text-align: center;">
+                <h4 style="font-size: 1.5em; margin-bottom: 10px;">Free</h4>
+                <p style="font-size: 2.5em; color: #667eea; font-weight: 700; margin-bottom: 20px;">$0</p>
+                <p style="color: #718096; margin-bottom: 20px;">Unlimited recipe cleaning</p>
+                <button onclick="showAuthForm('signup')" style="width: 100%; padding: 12px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 8px; cursor: pointer; font-weight: 600;">Get Started</button>
+            </div>
+            <div style="border: 3px solid #667eea; border-radius: 10px; padding: 30px; text-align: center; position: relative;">
+                <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #667eea; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8em; font-weight: 700;">POPULAR</div>
+                <h4 style="font-size: 1.5em; margin-bottom: 10px;">Pro</h4>
+                <p style="font-size: 2.5em; color: #667eea; font-weight: 700; margin-bottom: 5px;">$4.99</p>
+                <p style="color: #718096; font-size: 0.9em; margin-bottom: 20px;">per month</p>
+                <p style="color: #333; margin-bottom: 20px;">Save recipes, shopping lists, cooking mode & more</p>
+                <button onclick="showAuthForm('signup')" style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Start Free Trial</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final CTA -->
+    <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 60px 40px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h3 style="font-size: 2.2em; margin-bottom: 20px;">Ready to Cook Smarter?</h3>
+        <p style="font-size: 1.2em; margin-bottom: 30px; opacity: 0.9;">Join thousands of home cooks who've ditched the fluff</p>
+        <button onclick="showAuthForm('signup')" style="background: white; color: #667eea; padding: 20px 40px; font-size: 1.2em; border-radius: 10px; border: none; cursor: pointer; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            Get Started Free
+        </button>
+    </div>
+</div>
         <div id="authContainer"></div>
         <div id="appContainer" style="display: none;">
             <div class="tabs">
@@ -1427,19 +1520,21 @@
             const { data: { session: userSession } } = await supabase.auth.getSession();
             
             if (userSession) {
-                session = userSession;
-                currentUser = userSession.user;
-                await checkUserStatus();
-                showApp();
-            } else {
-                showAuthForm();
-            }
+    session = userSession;
+    currentUser = userSession.user;
+    await checkUserStatus();
+    showApp();
+} else {
+    document.getElementById('landingPage').style.display = 'block';
+    showAuthForm();
+}
             
             checkPaymentStatus();
         }
         
         function showAuthForm(mode = 'login') {
-            const authContainer = document.getElementById('authContainer');
+    document.getElementById('landingPage').style.display = 'none';
+    const authContainer = document.getElementById('authContainer');
             const isLogin = mode === 'login';
             
             authContainer.innerHTML = `
