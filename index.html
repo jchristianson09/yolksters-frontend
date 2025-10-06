@@ -1304,9 +1304,23 @@
             </div>
             
             <div id="shoppingTab" class="tab-content">
-                <div class="shopping-list">
-                    <h2>Shopping List</h2>
-                    <div id="shoppingListItems"></div>
+    <div class="shopping-list">
+        <h2>Shopping List</h2>
+        
+        <!-- Add manual item input -->
+        <div style="margin-bottom: 20px;">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="manualItemInput" 
+                    placeholder="Add item (e.g., milk, bread, shampoo...)" 
+                    style="flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;"
+                />
+                <button onclick="addManualItem()" style="padding: 12px 24px;">Add Item</button>
+            </div>
+        </div>
+        
+        <div id="shoppingListItems"></div>
                     <button class="clear-list-btn" onclick="clearShoppingList()">Clear List</button>
                 </div>
             </div>
@@ -2308,6 +2322,43 @@
                 }
             }
         }
+        async function addManualItem() {
+    if (!isPro) {
+        showUpgradeModal('shopping');
+        return;
+    }
+    
+    const input = document.getElementById('manualItemInput');
+    const itemText = input.value.trim();
+    
+    if (!itemText) {
+        alert('Please enter an item');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/api/shopping-list/add-manual`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+                item: itemText
+            })
+        });
+        
+        if (!response.ok) throw new Error('Failed to add item');
+        
+        input.value = '';
+        await loadShoppingList();
+        displayShoppingListGrouped();
+        
+    } catch (error) {
+        console.error('Error adding manual item:', error);
+        alert('Failed to add item');
+    }
+}
         // END NEW SMART SHOPPING LIST FUNCTIONS
         
         function updateShoppingCount() {
